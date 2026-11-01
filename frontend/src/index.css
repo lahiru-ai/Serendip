@@ -1,0 +1,12 @@
+/* Language: CSS (Tailwind Directives & Custom Base Layer) */
+/* Purpose: Injects Tailwind CSS foundational reset, utility layers, and custom typography/smooth scrolling onto the global HTML document. */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    scroll-behavior: smooth;
+  }
+}
