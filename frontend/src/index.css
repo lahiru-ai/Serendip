@@ -1,12 +1,102 @@
 /* Language: CSS (Tailwind Directives & Custom Base Layer) */
-/* Purpose: Injects Tailwind CSS foundational reset, utility layers, and custom typography/smooth scrolling onto the global HTML document. */
+/* Purpose: Injects Tailwind CSS foundational reset, utility layers, and custom typography/smooth scrolling onto the global HTML document for SERENDIP. */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --color-heritage: #315D4F;
+    --color-secondary: #426F60;
+    --color-hover: #19372E;
+    --color-gold: #A48B57;
+    --color-light-gold: #BD9F75;
+    --color-ivory: #F9F6EF;
+    --color-surface: #E9E4D7;
+    --color-forest: #222B1F;
+    --color-muted: #ADA78A;
+    --color-border: #D6CBB5;
+  }
+
   html {
     font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     scroll-behavior: smooth;
+    background-color: #F9F6EF;
+    color: #222B1F;
+  }
+
+  body {
+    background-color: #F9F6EF;
+    color: #222B1F;
+  }
+
+  ::selection {
+    background-color: #315D4F;
+    color: #F9F6EF;
+  }
+
+  /* Custom scrollbar matching Heritage Green & Antique Gold */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #E9E4D7;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #A48B57;
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #315D4F;
+  }
+}
+
+@layer utilities {
+  .bg-warm-ivory {
+    background-color: #F9F6EF;
+  }
+
+  .bg-soft-beige {
+    background-color: #E9E4D7;
+  }
+
+  .border-parchment {
+    border-color: #D6CBB5;
+  }
+
+  .text-heritage {
+    color: #315D4F;
+  }
+
+  .text-antique-gold {
+    color: #A48B57;
+  }
+
+  .text-forest {
+    color: #222B1F;
+  }
+
+  .gold-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #A48B57, transparent);
+  }
+
+  .gold-divider-subtle {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #D6CBB5, transparent);
+  }
+
+  .heritage-card-shadow {
+    box-shadow: 0 10px 30px -10px rgba(49, 93, 79, 0.08), 0 4px 6px -2px rgba(49, 93, 79, 0.03);
+  }
+
+  .heritage-pattern {
+    background-color: #F9F6EF;
+    background-image: radial-gradient(#D6CBB5 0.75px, transparent 0.75px);
+    background-size: 24px 24px;
   }
 }

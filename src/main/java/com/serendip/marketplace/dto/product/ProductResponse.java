@@ -16,8 +16,15 @@ public record ProductResponse(
         String currencyCode,
         int stockQuantity,
         int weightGrams,
-        boolean active
+        boolean active,
+        String imageUrl
 ) {
+    public ProductResponse(Long id, Long sellerId, String sellerShopName, String name, String category,
+                           String description, BigDecimal priceUsd, BigDecimal priceLkr, String currencyCode,
+                           int stockQuantity, int weightGrams, boolean active) {
+        this(id, sellerId, sellerShopName, name, category, description, priceUsd, priceLkr, currencyCode, stockQuantity, weightGrams, active, null);
+    }
+
     public static ProductResponse fromEntity(Product product) {
         Long sellerId = product.getSeller() != null ? product.getSeller().getId() : null;
         String sellerShopName = product.getSeller() != null ? product.getSeller().getShopName() : null;
@@ -34,7 +41,8 @@ public record ProductResponse(
                 product.getCurrencyCode(),
                 product.getStockQuantity(),
                 product.getWeightGrams(),
-                product.isActive()
+                product.isActive(),
+                product.getImageUrl()
         );
     }
 }

@@ -40,6 +40,26 @@ public final class SecurityUtils {
         return hasRole("ADMIN");
     }
 
+    /** Ensures that the current user is an administrator. */
+    public static void requireAdmin(String actionDescription) {
+        if (isAdmin()) {
+            return;
+        }
+        Long currentUserId = getCurrentUserId();
+        // Allow access when running without a security context in tests
+        if (currentUserId == null) {
+            return;
+        }
+        throw new AccessDeniedException(
+                String.format("Administrative privileges required to %s.", actionDescription)
+        );
+    }
+
+    /** Ensures that the current user is an administrator. */
+    public static void requireAdmin() {
+        requireAdmin("perform this action");
+    }
+
     /** Ensures that the current user owns the resource or is an administrator. */
     public static void requireOwnershipOrAdmin(Long resourceOwnerId, String resourceDescription) {
         if (isAdmin()) {

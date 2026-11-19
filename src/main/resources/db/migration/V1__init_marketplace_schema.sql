@@ -50,6 +50,7 @@ CREATE TABLE IF NOT EXISTS products (
     name VARCHAR(180) NOT NULL,
     category VARCHAR(100) DEFAULT 'General',
     description VARCHAR(2000),
+    image_url TEXT,
     price_usd DECIMAL(12, 2) NOT NULL,
     price_lkr DECIMAL(14, 2),
     currency_code VARCHAR(3) NOT NULL DEFAULT 'USD',

@@ -31,6 +31,12 @@ public class ProductService {
     /** Adds a new product to a seller's catalog with price in USD. */
     public Product addProduct(Long sellerId, String name, String category, String description,
                               BigDecimal priceUsd, int stockQuantity, int weightGrams) {
+        return addProduct(sellerId, name, category, description, priceUsd, stockQuantity, weightGrams, null);
+    }
+
+    /** Adds a new product to a seller's catalog with price in USD and product image. */
+    public Product addProduct(Long sellerId, String name, String category, String description,
+                              BigDecimal priceUsd, int stockQuantity, int weightGrams, String imageUrl) {
         SecurityUtils.requireOwnershipOrAdmin(sellerId, "seller catalog");
         Seller seller = sellerRepository.findById(sellerId)
                 .orElseThrow(() -> new ResourceNotFoundException(String.format("Seller with id %d not found.", sellerId)));
@@ -39,6 +45,7 @@ public class ProductService {
         product.setCategory(category != null ? category : "General");
         product.setDescription(description != null ? description : "");
         product.setWeightGrams(weightGrams);
+        product.setImageUrl(imageUrl);
         seller.addProduct(product);
         return productRepository.save(product);
     }
@@ -46,11 +53,18 @@ public class ProductService {
     /** Adds a new product to a seller's catalog with price specified in LKR. */
     public Product addProductInLkr(Long sellerId, String name, String category, String description,
                                  BigDecimal priceLkr, int stockQuantity, int weightGrams) {
+        return addProductInLkr(sellerId, name, category, description, priceLkr, stockQuantity, weightGrams, null);
+    }
+
+    /** Adds a new product to a seller's catalog with price specified in LKR and product image. */
+    public Product addProductInLkr(Long sellerId, String name, String category, String description,
+                                 BigDecimal priceLkr, int stockQuantity, int weightGrams, String imageUrl) {
         SecurityUtils.requireOwnershipOrAdmin(sellerId, "seller catalog");
         Seller seller = sellerRepository.findById(sellerId)
                 .orElseThrow(() -> new ResourceNotFoundException(String.format("Seller with id %d not found.", sellerId)));
 
         Product product = Product.createInLkr(name, category, description, priceLkr, stockQuantity, seller, weightGrams);
+        product.setImageUrl(imageUrl);
         seller.addProduct(product);
         return productRepository.save(product);
     }
@@ -96,6 +110,14 @@ public class ProductService {
         Product product = getProductById(productId);
         checkProductOwnership(product);
         product.replenishStock(quantity);
+        return productRepository.save(product);
+    }
+
+    /** Updates the image of an existing product in the database. */
+    public Product updateProductImage(Long productId, String imageUrl) {
+        Product product = getProductById(productId);
+        checkProductOwnership(product);
+        product.setImageUrl(imageUrl);
         return productRepository.save(product);
     }
 

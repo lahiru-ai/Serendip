@@ -13,34 +13,43 @@ export const OrderStatusBadge: React.FC<Props> = ({ status, className = '' }) =>
 
   let label = norm;
   let colorStyle = 'bg-zinc-100 text-zinc-700 border-zinc-200';
+  let dotColor = 'bg-zinc-400';
 
   if (norm === 'PENDING_PAYMENT' || norm === 'ORDER_PLACED') {
     label = 'Order Placed';
-    colorStyle = 'bg-sky-50 text-sky-700 border-sky-200';
+    colorStyle = 'bg-sky-50 text-sky-800 border-sky-200 shadow-xs';
+    dotColor = 'bg-sky-500 animate-pulse';
   } else if (norm === 'PAID' || norm === 'PAYMENT_CONFIRMED' || norm === 'ORDER_CONFIRMED') {
     label = 'Order Confirmed';
-    colorStyle = 'bg-emerald-50 text-emerald-700 border-emerald-200';
+    colorStyle = 'bg-emerald-50 text-emerald-800 border-emerald-200 shadow-xs';
+    dotColor = 'bg-emerald-500';
   } else if (norm === 'PROCESSING') {
     label = 'Processing';
-    colorStyle = 'bg-amber-50 text-amber-700 border-amber-200';
+    colorStyle = 'bg-amber-50 text-amber-800 border-amber-200 shadow-xs';
+    dotColor = 'bg-amber-500 animate-pulse';
   } else if (norm === 'SHIPPED') {
     label = 'Shipped';
-    colorStyle = 'bg-purple-50 text-purple-700 border-purple-200';
+    colorStyle = 'bg-purple-50 text-purple-800 border-purple-200 shadow-xs';
+    dotColor = 'bg-purple-500';
   } else if (norm === 'OUT_FOR_DELIVERY') {
     label = 'Out for Delivery';
-    colorStyle = 'bg-indigo-50 text-indigo-700 border-indigo-200';
+    colorStyle = 'bg-indigo-50 text-indigo-800 border-indigo-200 shadow-xs';
+    dotColor = 'bg-indigo-500 animate-pulse';
   } else if (norm === 'DELIVERED' || norm === 'COMPLETED') {
     label = 'Delivered';
-    colorStyle = 'bg-green-50 text-green-800 border-green-200';
+    colorStyle = 'bg-teal-50 text-teal-800 border-teal-200 shadow-xs';
+    dotColor = 'bg-teal-600';
   } else if (norm === 'CANCELLED') {
     label = 'Cancelled';
-    colorStyle = 'bg-red-50 text-red-700 border-red-200';
+    colorStyle = 'bg-rose-50 text-rose-800 border-rose-200 shadow-xs';
+    dotColor = 'bg-rose-500';
   }
 
   return (
     <span
-      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${colorStyle} ${className}`}
+      className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold border ${colorStyle} ${className}`}
     >
+      <span className={`w-1.5 h-1.5 rounded-full ${dotColor}`} />
       {label}
     </span>
   );

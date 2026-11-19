@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { UserCheck, Store, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { UserCheck, Store, AlertCircle, CheckCircle2, ArrowRight } from 'lucide-react';
 import { api } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 
 /**
- * Registration page for creating new Buyer or Seller accounts.
+ * SERENDIP Registration Page
+ * Buyer & Seller registrations styled in SERENDIP Warm Ivory (#F9F6EF), Antique Gold (#A48B57), and Heritage Green (#315D4F).
  */
 export const RegisterPage: React.FC = () => {
   const navigate = useNavigate();
@@ -75,116 +76,124 @@ export const RegisterPage: React.FC = () => {
 
   return (
     <div className="min-h-[85vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-xl w-full space-y-8 bg-white p-8 sm:p-10 rounded-3xl border border-zinc-200/80 shadow-premium">
+      <div className="max-w-xl w-full space-y-8 bg-[#FFFFFF] p-8 sm:p-10 rounded-3xl border border-[#D6CBB5] shadow-premium">
         
-        <div className="text-center space-y-2">
-          <div className="w-12 h-12 rounded-2xl bg-zinc-900 text-white font-serif font-bold text-2xl flex items-center justify-center mx-auto shadow-sm">
+        <div className="text-center space-y-2.5">
+          <div className="w-14 h-14 rounded-2xl bg-[#315D4F] border border-[#A48B57] text-[#BD9F75] font-serif font-bold text-2xl flex items-center justify-center mx-auto shadow-md">
             S
           </div>
-          <h2 className="font-serif text-2xl sm:text-3xl font-bold tracking-tight text-zinc-900">
+          <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-[#A48B57] block">
+            Ceylon Heritage Marketplace
+          </span>
+          <h2 className="font-serif text-2xl sm:text-3xl font-bold tracking-tight text-[#222B1F]">
             Create Your SERENDIP Account
           </h2>
-          <p className="text-xs text-zinc-500">
+          <p className="text-xs text-[#7A755D]">
             Join the international marketplace as a buyer or registered Ceylon merchant.
           </p>
         </div>
 
         {/* Tab switch: Buyer vs Seller */}
-        <div className="grid grid-cols-2 p-1 bg-zinc-100 rounded-2xl">
+        <div className="grid grid-cols-2 p-1.5 bg-[#E9E4D7] rounded-2xl border border-[#D6CBB5]">
           <button
             type="button"
             onClick={() => { setMode('BUYER'); setError(null); }}
             className={`py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
               mode === 'BUYER'
-                ? 'bg-white text-zinc-900 shadow-sm'
-                : 'text-zinc-500 hover:text-zinc-800'
+                ? 'bg-[#315D4F] text-[#F9F6EF] shadow-sm border border-[#A48B57]/40'
+                : 'text-[#222B1F] hover:text-[#315D4F]'
             }`}
           >
-            <UserCheck className="w-4 h-4 text-serendip-600" />
-            Buyer
+            <UserCheck className="w-4 h-4 text-[#BD9F75]" />
+            <span>International Buyer</span>
           </button>
           <button
             type="button"
             onClick={() => { setMode('SELLER'); setError(null); }}
             className={`py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
               mode === 'SELLER'
-                ? 'bg-white text-zinc-900 shadow-sm'
-                : 'text-zinc-500 hover:text-zinc-800'
+                ? 'bg-[#315D4F] text-[#F9F6EF] shadow-sm border border-[#A48B57]/40'
+                : 'text-[#222B1F] hover:text-[#315D4F]'
             }`}
           >
-            <Store className="w-4 h-4 text-amber-600" />
-            Ceylon Merchant
+            <Store className="w-4 h-4 text-[#BD9F75]" />
+            <span>Ceylon Merchant / Artisan</span>
           </button>
         </div>
 
+        {/* Error notification */}
         {error && (
-          <div className="p-3.5 bg-red-50 border border-red-200 rounded-xl text-red-700 text-xs flex items-center gap-2">
-            <AlertCircle className="w-4 h-4 shrink-0" />
+          <div className="p-3.5 bg-rose-50 border border-rose-200 rounded-xl text-rose-800 text-xs flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
             <span>{error}</span>
           </div>
         )}
 
+        {/* Success notification */}
         {success && (
-          <div className="p-3.5 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-800 text-xs flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-            <span>Registration successful! Signing you in...</span>
+          <div className="p-3.5 bg-[#E9E4D7] border border-[#A48B57] rounded-xl text-[#315D4F] text-xs flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4 shrink-0 text-[#315D4F]" />
+            <span>Registration successful! Signing in to your account...</span>
           </div>
         )}
 
-        {/* Registration form */}
-        <form onSubmit={handleSubmit} className="space-y-4 text-xs">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block font-semibold text-zinc-700 mb-1" htmlFor="reg-name">Full Name *</label>
+              <label className="block text-xs font-semibold text-[#222B1F] mb-1.5">
+                Full Name <span className="text-rose-600">*</span>
+              </label>
               <input
-                id="reg-name"
                 type="text"
                 required
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
-                placeholder="e.g. Kasun Fernando"
-                className="w-full px-3 py-2 bg-zinc-50 border border-zinc-200 rounded-xl focus:outline-none focus:border-serendip-500"
+                placeholder="Kamal Perera"
+                className="w-full px-3.5 py-2.5 text-xs bg-[#F9F6EF] text-[#222B1F] border border-[#D6CBB5] rounded-xl focus:outline-none focus:border-[#315D4F]"
               />
             </div>
 
             <div>
-              <label className="block font-semibold text-zinc-700 mb-1" htmlFor="reg-email">Email Address *</label>
+              <label className="block text-xs font-semibold text-[#222B1F] mb-1.5">
+                Email Address <span className="text-rose-600">*</span>
+              </label>
               <input
-                id="reg-email"
                 type="email"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="kasun@example.com"
-                className="w-full px-3 py-2 bg-zinc-50 border border-zinc-200 rounded-xl focus:outline-none focus:border-serendip-500"
+                placeholder="kamal@example.com"
+                className="w-full px-3.5 py-2.5 text-xs bg-[#F9F6EF] text-[#222B1F] border border-[#D6CBB5] rounded-xl focus:outline-none focus:border-[#315D4F]"
               />
             </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block font-semibold text-zinc-700 mb-1" htmlFor="reg-pass">Password *</label>
+              <label className="block text-xs font-semibold text-[#222B1F] mb-1.5">
+                Password <span className="text-rose-600">*</span>
+              </label>
               <input
-                id="reg-pass"
                 type="password"
                 required
-                minLength={6}
+                minLength={8}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                className="w-full px-3 py-2 bg-zinc-50 border border-zinc-200 rounded-xl focus:outline-none focus:border-serendip-500"
+                placeholder="Min. 8 characters"
+                className="w-full px-3.5 py-2.5 text-xs bg-[#F9F6EF] text-[#222B1F] border border-[#D6CBB5] rounded-xl focus:outline-none focus:border-[#315D4F]"
               />
             </div>
 
             <div>
-              <label className="block font-semibold text-zinc-700 mb-1" htmlFor="reg-phone">Phone Number</label>
+              <label className="block text-xs font-semibold text-[#222B1F] mb-1.5">
+                Phone Number <span className="text-[#ADA78A] font-normal">(Optional)</span>
+              </label>
               <input
-                id="reg-phone"
                 type="tel"
                 value={phoneNumber}
                 onChange={(e) => setPhoneNumber(e.target.value)}
                 placeholder="+94 77 123 4567"
-                className="w-full px-3 py-2 bg-zinc-50 border border-zinc-200 rounded-xl focus:outline-none focus:border-serendip-500"
+                className="w-full px-3.5 py-2.5 text-xs bg-[#F9F6EF] text-[#222B1F] border border-[#D6CBB5] rounded-xl focus:outline-none focus:border-[#315D4F]"
               />
             </div>
           </div>
@@ -192,42 +201,45 @@ export const RegisterPage: React.FC = () => {
           {/* Mode specific fields */}
           {mode === 'BUYER' ? (
             <div>
-              <label className="block font-semibold text-zinc-700 mb-1" htmlFor="reg-address">Delivery Address</label>
+              <label className="block text-xs font-semibold text-[#222B1F] mb-1.5">
+                Delivery Address <span className="text-[#ADA78A] font-normal">(Optional)</span>
+              </label>
               <textarea
-                id="reg-address"
                 rows={2}
                 value={deliveryAddress}
                 onChange={(e) => setDeliveryAddress(e.target.value)}
-                placeholder="Suite 500, 100 Main St, New York, NY 10001, USA"
-                className="w-full px-3 py-2 bg-zinc-50 border border-zinc-200 rounded-xl focus:outline-none focus:border-serendip-500"
+                placeholder="Street address, city, country, postal code"
+                className="w-full px-3.5 py-2.5 text-xs bg-[#F9F6EF] text-[#222B1F] border border-[#D6CBB5] rounded-xl focus:outline-none focus:border-[#315D4F]"
               />
             </div>
           ) : (
-            <div className="space-y-4 pt-2 border-t border-zinc-100">
+            <div className="space-y-4 pt-1 border-t border-[#D6CBB5]/60">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block font-semibold text-zinc-700 mb-1" htmlFor="reg-shop">Shop / Artisan Brand Name *</label>
+                  <label className="block text-xs font-semibold text-[#222B1F] mb-1.5">
+                    Shop / Brand Name <span className="text-rose-600">*</span>
+                  </label>
                   <input
-                    id="reg-shop"
                     type="text"
                     required
                     value={shopName}
                     onChange={(e) => setShopName(e.target.value)}
-                    placeholder="e.g. Ceylon Royal Gems"
-                    className="w-full px-3 py-2 bg-zinc-50 border border-zinc-200 rounded-xl focus:outline-none focus:border-serendip-500"
+                    placeholder="e.g. Ruhuna Spice Artisans"
+                    className="w-full px-3.5 py-2.5 text-xs bg-[#F9F6EF] text-[#222B1F] border border-[#D6CBB5] rounded-xl focus:outline-none focus:border-[#315D4F]"
                   />
                 </div>
 
                 <div>
-                  <label className="block font-semibold text-zinc-700 mb-1" htmlFor="reg-location">Shop Location / Address *</label>
+                  <label className="block text-xs font-semibold text-[#222B1F] mb-1.5">
+                    City / Production Origin <span className="text-rose-600">*</span>
+                  </label>
                   <input
-                    id="reg-location"
                     type="text"
                     required
                     value={shopLocation}
                     onChange={(e) => setShopLocation(e.target.value)}
-                    placeholder="e.g. 45 Galle Road, Colombo 03, Sri Lanka"
-                    className="w-full px-3 py-2 bg-zinc-50 border border-zinc-200 rounded-xl focus:outline-none focus:border-serendip-500"
+                    placeholder="e.g. Kandy, Galle, Matale"
+                    className="w-full px-3.5 py-2.5 text-xs bg-[#F9F6EF] text-[#222B1F] border border-[#D6CBB5] rounded-xl focus:outline-none focus:border-[#315D4F]"
                   />
                 </div>
               </div>
@@ -237,15 +249,22 @@ export const RegisterPage: React.FC = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 px-4 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white font-semibold text-sm shadow-sm transition-all mt-4 disabled:opacity-50"
+            className="w-full py-4 px-4 rounded-xl bg-[#315D4F] hover:bg-[#19372E] text-[#F9F6EF] font-bold text-xs uppercase tracking-wider shadow-heritage transition-all flex items-center justify-center gap-2 disabled:opacity-50 border border-[#A48B57]/50"
           >
-            {loading ? 'Creating Account...' : `Register as ${mode === 'BUYER' ? 'Buyer' : 'Seller'}`}
+            {loading ? (
+              <span>Creating account...</span>
+            ) : (
+              <>
+                <span>Complete Registration</span>
+                <ArrowRight className="w-4 h-4 text-[#BD9F75]" />
+              </>
+            )}
           </button>
         </form>
 
-        <div className="text-center text-xs text-zinc-500 pt-2 border-t border-zinc-100">
+        <div className="text-center text-xs text-[#7A755D] pt-3 border-t border-[#D6CBB5]/60">
           Already have an account?{' '}
-          <Link to="/login" className="font-semibold text-serendip-700 hover:underline">
+          <Link to="/login" className="font-bold text-[#315D4F] hover:text-[#19372E] hover:underline">
             Sign In
           </Link>
         </div>

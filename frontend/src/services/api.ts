@@ -130,6 +130,7 @@ class ApiService {
     priceUsd: number;
     stockQuantity: number;
     weightGrams?: number;
+    imageUrl?: string;
   }): Promise<Product> {
     return this.request<Product>('/products', {
       method: 'POST',
@@ -146,11 +147,45 @@ class ApiService {
     priceLkr: number;
     stockQuantity: number;
     weightGrams?: number;
+    imageUrl?: string;
   }): Promise<Product> {
     return this.request<Product>('/products/lkr', {
       method: 'POST',
       body: JSON.stringify(data),
     });
+  }
+
+  /** Updates the image of an existing product in the database. */
+  async updateProductImage(id: number, imageUrl: string): Promise<Product> {
+    return this.request<Product>(`/products/${id}/image`, {
+      method: 'PUT',
+      body: JSON.stringify({ imageUrl }),
+    });
+  }
+
+  /** Uploads a multipart image file for a product to store directly on the database. */
+  async uploadProductImage(id: number, file: File): Promise<Product> {
+    const formData = new FormData();
+    formData.append('file', file);
+    const headers: Record<string, string> = {};
+    const authCredentials = localStorage.getItem('serendip_auth_credentials');
+    if (authCredentials) {
+      headers['Authorization'] = `Basic ${authCredentials}`;
+    }
+    const response = await fetch(`${API_BASE_URL}/products/${id}/image`, {
+      method: 'POST',
+      headers,
+      body: formData,
+    });
+    if (!response.ok) {
+      let msg = `HTTP error! status: ${response.status}`;
+      try {
+        const errorData = await response.json();
+        msg = errorData.message || errorData.error || msg;
+      } catch {}
+      throw new Error(msg);
+    }
+    return response.json();
   }
 
   /** Updates the price of an existing product. */

@@ -52,6 +52,9 @@ public class Product {
     @Column(name = "weight_grams")
     private int weightGrams = 100;
 
+    @Column(name = "image_url", columnDefinition = "TEXT")
+    private String imageUrl;
+
     @Column(name = "is_active", nullable = false)
     private boolean active = true;
 
@@ -261,6 +264,14 @@ public class Product {
             throw new IllegalArgumentException("Weight must be greater than zero.");
         }
         this.weightGrams = weightGrams;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl != null && !imageUrl.isBlank() ? imageUrl.trim() : null;
     }
 
     public boolean isActive() {

@@ -15,7 +15,8 @@ import {
   Upload,
   FileCheck,
   FileText,
-  X
+  X,
+  Sparkles
 } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useCurrency } from '../context/CurrencyContext';
@@ -24,7 +25,9 @@ import { api } from '../services/api';
 import { Order, PaymentMethodType } from '../types';
 
 /**
- * Checkout page supporting Card Payment, PayPal, and Bank Transfer with Deposit Slip submission.
+ * SERENDIP Checkout Page
+ * Supports Credit Card, PayPal, and Direct Bank Wire Transfer with Deposit Slip upload.
+ * Styled in Heritage Green (#315D4F), Antique Gold (#A48B57), and Warm Ivory (#F9F6EF).
  */
 export const CheckoutPage: React.FC = () => {
   const { cart, clearCart } = useCart();
@@ -60,10 +63,13 @@ export const CheckoutPage: React.FC = () => {
 
   if (!user || user.role !== 'BUYER') {
     return (
-      <div className="max-w-md mx-auto my-20 p-8 bg-white border border-zinc-200/80 rounded-3xl text-center shadow-premium">
-        <h2 className="text-lg font-bold text-zinc-900">Sign In Required</h2>
-        <p className="text-xs text-zinc-500 mt-2 mb-4">You must be signed in as a buyer to check out.</p>
-        <Link to="/login" className="px-4 py-2 bg-zinc-900 text-white rounded-xl text-xs font-semibold">
+      <div className="max-w-md mx-auto my-20 p-8 sm:p-10 bg-[#FFFFFF] border border-[#D6CBB5] rounded-3xl text-center shadow-premium space-y-4">
+        <h2 className="font-serif text-xl font-bold text-[#222B1F]">Sign In Required</h2>
+        <p className="text-xs text-[#7A755D]">You must be signed in as a buyer to check out.</p>
+        <Link 
+          to="/login" 
+          className="inline-block px-5 py-2.5 bg-[#315D4F] text-[#F9F6EF] rounded-xl text-xs font-semibold hover:bg-[#19372E] transition-colors"
+        >
           Sign In
         </Link>
       </div>
@@ -73,10 +79,13 @@ export const CheckoutPage: React.FC = () => {
   const items = cart?.items || [];
   if (items.length === 0 && !completedOrder) {
     return (
-      <div className="max-w-md mx-auto my-20 p-8 bg-white border border-zinc-200/80 rounded-3xl text-center shadow-premium space-y-4">
-        <h2 className="text-lg font-bold text-zinc-900">Your Cart is Empty</h2>
-        <p className="text-xs text-zinc-500">Add products to your cart before proceeding to checkout.</p>
-        <Link to="/catalog" className="inline-block px-4 py-2 bg-zinc-900 text-white rounded-xl text-xs font-semibold">
+      <div className="max-w-md mx-auto my-20 p-8 bg-[#FFFFFF] border border-[#D6CBB5] rounded-3xl text-center shadow-premium space-y-4">
+        <h2 className="font-serif text-xl font-bold text-[#222B1F]">Your Cart is Empty</h2>
+        <p className="text-xs text-[#7A755D]">Add products to your cart before proceeding to checkout.</p>
+        <Link 
+          to="/catalog" 
+          className="inline-block px-5 py-2.5 bg-[#315D4F] text-[#F9F6EF] rounded-xl text-xs font-semibold hover:bg-[#19372E] transition-colors"
+        >
           Return to Catalog
         </Link>
       </div>
@@ -106,7 +115,7 @@ export const CheckoutPage: React.FC = () => {
     const file = e.target.files?.[0];
     if (file) {
       if (file.size > 10 * 1024 * 1024) {
-        setError('Deposit slip file size exceeds 10MB limit.');
+        setError('Deposit slip file must be under 10MB');
         return;
       }
       setDepositSlipFile(file);
@@ -141,62 +150,73 @@ export const CheckoutPage: React.FC = () => {
   };
 
   const handlePlaceOrder = async () => {
-    setLoading(true);
     setError(null);
 
-    // Validation per method
+    // Validation per payment method
     if (selectedMethod === 'CARD_PAYMENT') {
-      if (cardNumber.replace(/\s+/g, '').length < 12) {
-        setError('Please enter a valid card number (at least 12-16 digits).');
-        setLoading(false);
+      const cleanCard = cardNumber.replace(/\s/g, '');
+      if (cleanCard.length < 13 || cleanCard.length > 19) {
+        setError('Please enter a valid 16-digit card number');
         return;
       }
-      if (!cardHolder.trim()) {
-        setError('Please provide the cardholder name.');
-        setLoading(false);
+      if (!cardExpiry || cardExpiry.length < 5) {
+        setError('Please enter expiration date (MM/YY)');
         return;
       }
-      if (!cardExpiry.includes('/') || cardExpiry.length < 5) {
-        setError('Please provide expiry date in MM/YY format.');
-        setLoading(false);
-        return;
-      }
-      if (cardCvc.trim().length < 3) {
-        setError('Please provide a 3 or 4 digit CVC security code.');
-        setLoading(false);
+      if (!cardCvc || cardCvc.length < 3) {
+        setError('Please enter the 3 or 4-digit security code (CVC)');
         return;
       }
     } else if (selectedMethod === 'PAYPAL') {
-      if (!paypalEmail.trim() || !paypalEmail.includes('@')) {
-        setError('Please enter a valid PayPal account email address.');
-        setLoading(false);
+      if (!paypalEmail || !paypalEmail.includes('@')) {
+        setError('Please enter a valid PayPal account email');
         return;
       }
     } else if (selectedMethod === 'BANK_TRANSFER') {
-      // Require deposit slip to be submitted for bank deposit
-      if (!depositSlipFile && !depositSlipName) {
-        setError('Please upload or attach your bank deposit slip / receipt to complete checkout.');
-        setLoading(false);
+      if (!depositSlipFile && !bankReference.trim()) {
+        setError('Please either attach a photo of your deposit slip or provide a bank reference code');
         return;
       }
     }
 
     try {
+      setLoading(true);
+
+      const paymentDetails: {
+        cardNumber?: string;
+        cardExpiry?: string;
+        cardCvc?: string;
+        cardHolder?: string;
+        paypalEmail?: string;
+        bankReference?: string;
+        depositSlipUrl?: string;
+        depositSlipName?: string;
+      } = {};
+
+      if (selectedMethod === 'CARD_PAYMENT') {
+        paymentDetails.cardNumber = cardNumber.replace(/\s/g, '');
+        paymentDetails.cardExpiry = cardExpiry;
+        paymentDetails.cardCvc = cardCvc;
+        paymentDetails.cardHolder = cardHolder;
+      } else if (selectedMethod === 'PAYPAL') {
+        paymentDetails.paypalEmail = paypalEmail;
+      } else if (selectedMethod === 'BANK_TRANSFER') {
+        paymentDetails.bankReference = bankReference.trim();
+        paymentDetails.depositSlipName = depositSlipName;
+        if (depositSlipPreview) {
+          paymentDetails.depositSlipUrl = depositSlipPreview;
+        } else if (depositSlipName) {
+          paymentDetails.depositSlipUrl = `uploads/slips/${Date.now()}_${depositSlipName}`;
+        }
+      }
+
       const order = await api.checkout(
         user.id,
         simulateSuccess,
         selectedMethod,
-        {
-          cardNumber: cardNumber.replace(/\s+/g, ''),
-          cardExpiry,
-          cardCvc,
-          cardHolder,
-          paypalEmail,
-          bankReference: bankReference.trim(),
-          depositSlipUrl: depositSlipPreview || (depositSlipFile ? depositSlipFile.name : undefined),
-          depositSlipName: depositSlipName || undefined,
-        }
+        paymentDetails
       );
+
       setCompletedOrder(order);
       await clearCart();
     } catch (err: unknown) {
@@ -224,66 +244,70 @@ export const CheckoutPage: React.FC = () => {
 
   if (completedOrder) {
     return (
-      <div className="max-w-xl mx-auto my-16 p-8 sm:p-12 bg-white border border-zinc-200/80 rounded-3xl text-center shadow-premium space-y-6">
-        <div className="w-16 h-16 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto">
-          <CheckCircle2 className="w-10 h-10" />
+      <div className="max-w-xl mx-auto my-16 p-8 sm:p-12 bg-[#FFFFFF] border border-[#D6CBB5] rounded-3xl text-center shadow-premium space-y-6">
+        <div className="w-16 h-16 rounded-full bg-[#E9E4D7] text-[#315D4F] border border-[#A48B57] flex items-center justify-center mx-auto">
+          <CheckCircle2 className="w-10 h-10 text-[#315D4F]" />
         </div>
         
         <div className="space-y-2">
-          <span className="text-xs font-semibold uppercase tracking-wider text-emerald-700">Order Confirmed</span>
-          <h2 className="text-2xl sm:text-3xl font-bold text-zinc-900">Thank you for your order!</h2>
-          <p className="text-xs text-zinc-500">
-            Order Reference: <span className="font-mono font-bold text-zinc-800">{completedOrder.orderNumber}</span>
+          <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#A48B57] block">
+            Payment Recorded & Confirmed
+          </span>
+          <h2 className="font-serif text-2xl sm:text-3xl font-bold text-[#222B1F]">
+            Ayubowan! Thank you for your order.
+          </h2>
+          <p className="text-xs text-[#7A755D]">
+            Order Reference: <span className="font-mono font-bold text-[#315D4F]">{completedOrder.orderNumber}</span>
           </p>
         </div>
 
         {/* Payment Summary Box */}
-        <div className="p-4 bg-zinc-50 rounded-2xl border border-zinc-200 text-left text-xs space-y-2.5 max-w-md mx-auto">
-          <div className="flex justify-between items-center text-zinc-600">
+        <div className="p-5 bg-[#F9F6EF] rounded-2xl border border-[#D6CBB5] text-left text-xs space-y-2.5 max-w-md mx-auto">
+          <div className="flex justify-between items-center text-[#7A755D]">
             <span>Payment Method:</span>
-            <span className="font-semibold text-zinc-900">{getMethodDisplayName(completedOrder.paymentMethodName)}</span>
+            <span className="font-semibold text-[#222B1F]">{getMethodDisplayName(completedOrder.paymentMethodName)}</span>
           </div>
           {completedOrder.payment?.transactionReference && (
-            <div className="flex justify-between items-center text-zinc-600">
+            <div className="flex justify-between items-center text-[#7A755D]">
               <span>Transaction Ref:</span>
-              <span className="font-mono font-medium text-zinc-800">{completedOrder.payment.transactionReference}</span>
+              <span className="font-mono font-medium text-[#222B1F]">{completedOrder.payment.transactionReference}</span>
             </div>
           )}
           {depositSlipName && (
-            <div className="flex justify-between items-center text-zinc-600">
+            <div className="flex justify-between items-center text-[#7A755D]">
               <span>Deposit Slip:</span>
-              <span className="font-medium text-emerald-800 bg-emerald-100/70 px-2 py-0.5 rounded-md text-[11px] flex items-center gap-1">
-                <FileCheck className="w-3.5 h-3.5 text-emerald-600" />
+              <span className="font-medium text-[#315D4F] bg-[#E9E4D7] px-2 py-0.5 rounded-md text-[11px] flex items-center gap-1 border border-[#D6CBB5]">
+                <FileCheck className="w-3.5 h-3.5 text-[#315D4F]" />
                 {depositSlipName} (Submitted)
               </span>
             </div>
           )}
-          <div className="flex justify-between items-center text-zinc-600">
+          <div className="flex justify-between items-center text-[#7A755D]">
             <span>Total Amount:</span>
-            <span className="font-bold text-emerald-700">{formatPrice(completedOrder.totalAmount)}</span>
+            <span className="font-serif font-bold text-[#315D4F] text-sm">{formatPrice(completedOrder.totalAmount)}</span>
           </div>
-          <div className="flex justify-between items-center text-zinc-600">
+          <div className="flex justify-between items-center text-[#7A755D]">
             <span>Status:</span>
-            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#315D4F] text-[#F9F6EF]">
               {completedOrder.status}
             </span>
           </div>
         </div>
 
-        <p className="text-xs text-zinc-600 max-w-sm mx-auto leading-relaxed">
+        <p className="text-xs text-[#7A755D] max-w-sm mx-auto leading-relaxed">
           Your order and deposit details have been recorded and will be verified by the admin and artisan merchants in Sri Lanka.
         </p>
 
         <div className="pt-4 flex flex-col sm:flex-row gap-3 justify-center">
           <Link
             to="/orders"
-            className="px-6 py-3 bg-zinc-900 text-white rounded-xl text-xs font-bold hover:bg-zinc-800 transition-colors"
+            className="px-6 py-3.5 bg-[#315D4F] text-[#F9F6EF] rounded-xl text-xs font-bold hover:bg-[#19372E] transition-colors border border-[#A48B57]/40 shadow-xs"
           >
             View My Orders
           </Link>
           <Link
             to="/catalog"
-            className="px-6 py-3 bg-zinc-100 text-zinc-800 rounded-xl text-xs font-semibold hover:bg-zinc-200 transition-colors"
+            className="px-6 py-3.5 bg-[#E9E4D7] text-[#222B1F] rounded-xl text-xs font-semibold hover:bg-[#D6CBB5] transition-colors border border-[#D6CBB5]"
           >
             Continue Shopping
           </Link>
@@ -293,20 +317,20 @@ export const CheckoutPage: React.FC = () => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-10 space-y-8">
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-10 sm:py-14 space-y-8">
       
       <div>
-        <Link to="/cart" className="inline-flex items-center gap-1.5 text-xs text-zinc-500 hover:text-zinc-900 mb-2">
-          <ArrowLeft className="w-4 h-4" />
-          Back to Cart
+        <Link to="/cart" className="inline-flex items-center gap-1.5 text-xs font-bold text-[#315D4F] hover:text-[#19372E] mb-2 group">
+          <ArrowLeft className="w-4 h-4 text-[#A48B57] group-hover:-translate-x-1 transition-transform" />
+          Back to Shopping Cart
         </Link>
-        <h1 className="text-2xl sm:text-3xl font-bold text-zinc-900 tracking-tight">Checkout</h1>
-        <p className="text-xs text-zinc-500 mt-1">Select your preferred payment method and confirm your order.</p>
+        <h1 className="font-serif text-3xl font-bold text-[#222B1F] tracking-tight">Checkout & Payment</h1>
+        <p className="text-xs text-[#7A755D] mt-1">Select your preferred payment method and confirm your order.</p>
       </div>
 
       {error && (
-        <div className="p-4 bg-red-50 border border-red-200 rounded-2xl text-red-700 text-xs flex items-center gap-2">
-          <AlertCircle className="w-4 h-4 shrink-0" />
+        <div className="p-4 bg-rose-50 border border-rose-200 rounded-2xl text-rose-800 text-xs flex items-center gap-2">
+          <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
           <span>{error}</span>
         </div>
       )}
@@ -314,48 +338,50 @@ export const CheckoutPage: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
         
         {/* Left: Summary list */}
-        <div className="md:col-span-6 bg-white rounded-3xl border border-zinc-200/80 p-6 shadow-sm space-y-4">
-          <h3 className="font-semibold text-zinc-900 text-sm pb-2 border-b border-zinc-100">
-            Items to Purchase ({cart?.totalItemCount})
+        <div className="md:col-span-6 bg-[#FFFFFF] rounded-3xl border border-[#D6CBB5] p-6 shadow-subtle space-y-4">
+          <h3 className="font-serif font-bold text-[#222B1F] text-base pb-2 border-b border-[#D6CBB5]/60 flex items-center justify-between">
+            <span>Items to Purchase ({cart?.totalItemCount})</span>
+            <Sparkles className="w-4 h-4 text-[#A48B57]" />
           </h3>
+          
           <div className="space-y-3 max-h-72 overflow-y-auto pr-1">
             {items.map((item) => (
-              <div key={item.id} className="flex justify-between items-center text-xs">
+              <div key={item.id} className="flex justify-between items-center text-xs pb-2 border-b border-[#D6CBB5]/30">
                 <div>
-                  <p className="font-semibold text-zinc-900">{item.productName}</p>
-                  <p className="text-zinc-400">Qty: {item.quantity} • Merchant: {item.sellerShopName || 'Verified'}</p>
+                  <p className="font-serif font-bold text-[#222B1F]">{item.productName}</p>
+                  <p className="text-[#7A755D] text-[11px]">Qty: {item.quantity} • Merchant: {item.sellerShopName || 'Ceylon Heritage Guild'}</p>
                 </div>
-                <span className="font-bold text-zinc-800">{formatPrice(item.subtotal)}</span>
+                <span className="font-serif font-bold text-[#315D4F]">{formatPrice(item.subtotal)}</span>
               </div>
             ))}
           </div>
 
-          <div className="pt-4 border-t border-zinc-100 space-y-2 text-xs">
-            <div className="flex justify-between text-zinc-600">
+          <div className="pt-4 border-t border-[#D6CBB5] space-y-2 text-xs">
+            <div className="flex justify-between text-[#7A755D]">
               <span>Subtotal</span>
-              <span className="font-semibold text-zinc-900">{formatPrice(cart?.total || 0)}</span>
+              <span className="font-semibold text-[#222B1F]">{formatPrice(cart?.total || 0)}</span>
             </div>
-            <div className="flex justify-between text-zinc-600">
+            <div className="flex justify-between text-[#7A755D]">
               <span>Currency Basis</span>
-              <span className="font-semibold text-zinc-900">{currency}</span>
+              <span className="font-semibold text-[#222B1F]">{currency}</span>
             </div>
-            <div className="flex justify-between text-zinc-600">
-              <span>Shipping & Insurance</span>
-              <span className="font-semibold text-emerald-700">Calculated</span>
+            <div className="flex justify-between text-[#7A755D]">
+              <span>Export Handling & Packing</span>
+              <span className="font-semibold text-[#315D4F]">Complimentary</span>
             </div>
-            <div className="flex justify-between text-sm font-bold text-zinc-900 pt-2 border-t border-zinc-100">
-              <span>Grand Total</span>
-              <span className="text-serendip-700">{formatPrice(cart?.total || 0)}</span>
+            <div className="flex justify-between text-base font-bold text-[#222B1F] pt-3 border-t border-[#D6CBB5]">
+              <span className="font-serif">Grand Total</span>
+              <span className="font-serif text-xl text-[#315D4F]">{formatPrice(cart?.total || 0)}</span>
             </div>
           </div>
         </div>
 
         {/* Right: Payment Method Selection & Inputs */}
-        <div className="md:col-span-6 bg-white rounded-3xl border border-zinc-200/80 p-6 shadow-sm space-y-5">
-          <h3 className="font-semibold text-zinc-900 text-sm flex items-center justify-between">
+        <div className="md:col-span-6 bg-[#FFFFFF] rounded-3xl border border-[#D6CBB5] p-6 shadow-premium space-y-5">
+          <h3 className="font-serif font-bold text-[#222B1F] text-base flex items-center justify-between">
             <span>Payment Method</span>
-            <span className="text-[11px] font-normal text-zinc-400 flex items-center gap-1">
-              <Lock className="w-3 h-3" /> Encrypted
+            <span className="text-[11px] font-normal text-[#7A755D] flex items-center gap-1">
+              <Lock className="w-3 h-3 text-[#315D4F]" /> Encrypted
             </span>
           </h3>
 
@@ -366,11 +392,11 @@ export const CheckoutPage: React.FC = () => {
               onClick={() => { setSelectedMethod('CARD_PAYMENT'); setError(null); }}
               className={`p-3 rounded-2xl border text-center transition-all flex flex-col items-center gap-1.5 ${
                 selectedMethod === 'CARD_PAYMENT'
-                  ? 'border-zinc-900 bg-zinc-900 text-white shadow-sm'
-                  : 'border-zinc-200 bg-zinc-50/50 hover:bg-zinc-100 text-zinc-700'
+                  ? 'border-[#A48B57] bg-[#315D4F] text-[#F9F6EF] shadow-xs'
+                  : 'border-[#D6CBB5] bg-[#E9E4D7]/50 hover:bg-[#E9E4D7] text-[#222B1F]'
               }`}
             >
-              <CreditCard className="w-5 h-5" />
+              <CreditCard className="w-5 h-5 text-[#BD9F75]" />
               <span className="text-xs font-semibold">Card</span>
             </button>
 
@@ -379,11 +405,11 @@ export const CheckoutPage: React.FC = () => {
               onClick={() => { setSelectedMethod('PAYPAL'); setError(null); }}
               className={`p-3 rounded-2xl border text-center transition-all flex flex-col items-center gap-1.5 ${
                 selectedMethod === 'PAYPAL'
-                  ? 'border-zinc-900 bg-zinc-900 text-white shadow-sm'
-                  : 'border-zinc-200 bg-zinc-50/50 hover:bg-zinc-100 text-zinc-700'
+                  ? 'border-[#A48B57] bg-[#315D4F] text-[#F9F6EF] shadow-xs'
+                  : 'border-[#D6CBB5] bg-[#E9E4D7]/50 hover:bg-[#E9E4D7] text-[#222B1F]'
               }`}
             >
-              <Wallet className="w-5 h-5" />
+              <Wallet className="w-5 h-5 text-[#BD9F75]" />
               <span className="text-xs font-semibold">PayPal</span>
             </button>
 
@@ -392,67 +418,67 @@ export const CheckoutPage: React.FC = () => {
               onClick={() => { setSelectedMethod('BANK_TRANSFER'); setError(null); }}
               className={`p-3 rounded-2xl border text-center transition-all flex flex-col items-center gap-1.5 ${
                 selectedMethod === 'BANK_TRANSFER'
-                  ? 'border-zinc-900 bg-zinc-900 text-white shadow-sm'
-                  : 'border-zinc-200 bg-zinc-50/50 hover:bg-zinc-100 text-zinc-700'
+                  ? 'border-[#A48B57] bg-[#315D4F] text-[#F9F6EF] shadow-xs'
+                  : 'border-[#D6CBB5] bg-[#E9E4D7]/50 hover:bg-[#E9E4D7] text-[#222B1F]'
               }`}
             >
-              <Landmark className="w-5 h-5" />
+              <Landmark className="w-5 h-5 text-[#BD9F75]" />
               <span className="text-xs font-semibold">Bank Wire</span>
             </button>
           </div>
 
           {/* 1. Credit / Debit Card Form */}
           {selectedMethod === 'CARD_PAYMENT' && (
-            <div className="space-y-3 pt-2 text-xs animate-fadeIn">
-              <div className="flex items-center justify-between text-zinc-500 text-[11px] pb-1">
+            <div className="space-y-3 pt-2 text-xs">
+              <div className="flex items-center justify-between text-[#7A755D] text-[11px] pb-1">
                 <span>Credit or Debit Card</span>
-                <span className="font-medium text-zinc-400">Visa • Mastercard • Amex</span>
+                <span className="font-medium text-[#ADA78A]">Visa • Mastercard • Amex</span>
               </div>
 
               <div>
-                <label className="block text-zinc-600 font-medium mb-1">Cardholder Name</label>
+                <label className="block text-[#222B1F] font-semibold mb-1">Cardholder Name</label>
                 <input
                   type="text"
                   placeholder="e.g. John Doe"
                   value={cardHolder}
                   onChange={(e) => setCardHolder(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-200 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 focus:border-zinc-900"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-[#D6CBB5] bg-[#F9F6EF] text-[#222B1F] focus:outline-none focus:border-[#315D4F]"
                 />
               </div>
 
               <div>
-                <label className="block text-zinc-600 font-medium mb-1">Card Number</label>
+                <label className="block text-[#222B1F] font-semibold mb-1">Card Number</label>
                 <input
                   type="text"
                   placeholder="4532 0000 0000 8821"
                   maxLength={19}
                   value={cardNumber}
                   onChange={(e) => setCardNumber(formatCardInput(e.target.value))}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-200 font-mono tracking-wider focus:outline-none focus:ring-2 focus:ring-zinc-900/10 focus:border-zinc-900"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-[#D6CBB5] bg-[#F9F6EF] text-[#222B1F] font-mono tracking-wider focus:outline-none focus:border-[#315D4F]"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-zinc-600 font-medium mb-1">Expiry Date</label>
+                  <label className="block text-[#222B1F] font-semibold mb-1">Expiry Date</label>
                   <input
                     type="text"
                     placeholder="MM/YY"
                     maxLength={5}
                     value={cardExpiry}
                     onChange={(e) => setCardExpiry(formatExpiryInput(e.target.value))}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-200 font-mono focus:outline-none focus:ring-2 focus:ring-zinc-900/10 focus:border-zinc-900"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-[#D6CBB5] bg-[#F9F6EF] text-[#222B1F] font-mono focus:outline-none focus:border-[#315D4F]"
                   />
                 </div>
                 <div>
-                  <label className="block text-zinc-600 font-medium mb-1">Security Code (CVC)</label>
+                  <label className="block text-[#222B1F] font-semibold mb-1">Security Code (CVC)</label>
                   <input
                     type="password"
                     placeholder="123"
                     maxLength={4}
                     value={cardCvc}
                     onChange={(e) => setCardCvc(e.target.value.replace(/\D/g, '').slice(0, 4))}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-200 font-mono focus:outline-none focus:ring-2 focus:ring-zinc-900/10 focus:border-zinc-900"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-[#D6CBB5] bg-[#F9F6EF] text-[#222B1F] font-mono focus:outline-none focus:border-[#315D4F]"
                   />
                 </div>
               </div>
@@ -461,25 +487,25 @@ export const CheckoutPage: React.FC = () => {
 
           {/* 2. PayPal Form */}
           {selectedMethod === 'PAYPAL' && (
-            <div className="space-y-3 pt-2 text-xs animate-fadeIn">
-              <div className="p-3.5 bg-blue-50/70 border border-blue-200 rounded-2xl flex items-start gap-2.5 text-blue-900">
-                <Info className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
+            <div className="space-y-3 pt-2 text-xs">
+              <div className="p-3.5 bg-[#E9E4D7] border border-[#D6CBB5] rounded-2xl flex items-start gap-2.5 text-[#222B1F]">
+                <Info className="w-4 h-4 text-[#315D4F] shrink-0 mt-0.5" />
                 <div className="space-y-0.5">
-                  <p className="font-semibold text-blue-950">PayPal Buyer Protection</p>
-                  <p className="text-[11px] text-blue-800 leading-relaxed">
-                    Check out quickly using your PayPal account balance, linked credit card, or bank account.
+                  <p className="font-serif font-bold text-[#222B1F]">PayPal Buyer Protection</p>
+                  <p className="text-[11px] text-[#7A755D] leading-relaxed">
+                    Check out quickly using your PayPal account balance, linked card, or bank account.
                   </p>
                 </div>
               </div>
 
               <div>
-                <label className="block text-zinc-600 font-medium mb-1">PayPal Account Email</label>
+                <label className="block text-[#222B1F] font-semibold mb-1">PayPal Account Email</label>
                 <input
                   type="email"
                   placeholder="your-email@paypal.com"
                   value={paypalEmail}
                   onChange={(e) => setPaypalEmail(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-200 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 focus:border-zinc-900"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-[#D6CBB5] bg-[#F9F6EF] text-[#222B1F] focus:outline-none focus:border-[#315D4F]"
                 />
               </div>
             </div>
@@ -487,41 +513,41 @@ export const CheckoutPage: React.FC = () => {
 
           {/* 3. Bank Transfer & Deposit Slip Form */}
           {selectedMethod === 'BANK_TRANSFER' && (
-            <div className="space-y-3.5 pt-2 text-xs animate-fadeIn">
+            <div className="space-y-3.5 pt-2 text-xs">
               {/* Bank Account Info Box */}
-              <div className="p-3.5 bg-amber-50/60 border border-amber-200/80 rounded-2xl space-y-2 text-zinc-800">
-                <div className="flex items-center justify-between pb-1 border-b border-amber-200/50">
-                  <span className="font-semibold text-amber-950">Bank Wire Escrow Account</span>
-                  <span className="text-[10px] uppercase font-bold text-amber-800 bg-amber-100 px-2 py-0.5 rounded-full">
+              <div className="p-4 bg-[#E9E4D7]/70 border border-[#D6CBB5] rounded-2xl space-y-2 text-[#222B1F]">
+                <div className="flex items-center justify-between pb-1 border-b border-[#D6CBB5]/60">
+                  <span className="font-serif font-bold text-[#222B1F]">Bank Wire Escrow Account</span>
+                  <span className="text-[10px] uppercase font-bold text-[#19372E] bg-[#A48B57] px-2 py-0.5 rounded-full">
                     Direct Deposit
                   </span>
                 </div>
                 <div className="grid grid-cols-2 gap-2 text-[11px]">
                   <div>
-                    <span className="text-zinc-500 block">Bank Name:</span>
-                    <span className="font-semibold text-zinc-900">Commercial Bank PLC</span>
+                    <span className="text-[#7A755D] block">Bank Name:</span>
+                    <span className="font-semibold text-[#222B1F]">Commercial Bank PLC (Colombo)</span>
                   </div>
                   <div>
-                    <span className="text-zinc-500 block">SWIFT / BIC:</span>
-                    <span className="font-mono font-semibold text-zinc-900">CCEYLKLX</span>
+                    <span className="text-[#7A755D] block">SWIFT / BIC:</span>
+                    <span className="font-mono font-semibold text-[#222B1F]">CCEYLKLX</span>
                   </div>
-                  <div className="col-span-2 flex items-center justify-between bg-white/70 p-2 rounded-xl border border-amber-200/40">
+                  <div className="col-span-2 flex items-center justify-between bg-[#FFFFFF] p-2 rounded-xl border border-[#D6CBB5]">
                     <div>
-                      <span className="text-zinc-500 block text-[10px]">Account Number:</span>
-                      <span className="font-mono font-bold text-zinc-900 text-xs">8842 1099 4201</span>
+                      <span className="text-[#7A755D] block text-[10px]">Account Number:</span>
+                      <span className="font-mono font-bold text-[#315D4F] text-xs">8842 1099 4201</span>
                     </div>
                     <button
                       type="button"
                       onClick={() => handleCopy('884210994201', 'acc')}
-                      className="text-zinc-500 hover:text-zinc-900 flex items-center gap-1 text-[10px]"
+                      className="text-[#315D4F] hover:text-[#19372E] flex items-center gap-1 text-[10px] font-bold"
                     >
                       {copiedField === 'acc' ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
                       {copiedField === 'acc' ? 'Copied' : 'Copy'}
                     </button>
                   </div>
                   <div className="col-span-2">
-                    <span className="text-zinc-500 block">Beneficiary:</span>
-                    <span className="font-semibold text-zinc-900">SERENDIP MARKETPLACE ESCROW</span>
+                    <span className="text-[#7A755D] block">Beneficiary:</span>
+                    <span className="font-semibold text-[#222B1F]">SERENDIP MARKETPLACE ESCROW</span>
                   </div>
                 </div>
               </div>
@@ -529,11 +555,11 @@ export const CheckoutPage: React.FC = () => {
               {/* Deposit Slip Upload Section */}
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between">
-                  <label className="text-zinc-800 font-semibold flex items-center gap-1">
+                  <label className="text-[#222B1F] font-semibold flex items-center gap-1">
                     <span>Bank Deposit Slip / Receipt</span>
-                    <span className="text-red-500 font-bold">*</span>
+                    <span className="text-rose-600 font-bold">*</span>
                   </label>
-                  <span className="text-[10px] text-zinc-400">PNG, JPG, PDF up to 10MB</span>
+                  <span className="text-[10px] text-[#ADA78A]">PNG, JPG, PDF up to 10MB</span>
                 </div>
 
                 <input
@@ -548,21 +574,21 @@ export const CheckoutPage: React.FC = () => {
                 {!depositSlipFile ? (
                   <div
                     onClick={() => fileInputRef.current?.click()}
-                    className="border-2 border-dashed border-zinc-300 hover:border-zinc-500 hover:bg-zinc-50/70 transition-all rounded-2xl p-4 text-center cursor-pointer space-y-1.5"
+                    className="border-2 border-dashed border-[#D6CBB5] hover:border-[#315D4F] hover:bg-[#E9E4D7]/40 transition-all rounded-2xl p-4 text-center cursor-pointer space-y-1.5"
                   >
-                    <div className="w-9 h-9 rounded-full bg-zinc-100 flex items-center justify-center mx-auto text-zinc-600">
+                    <div className="w-9 h-9 rounded-full bg-[#E9E4D7] flex items-center justify-center mx-auto text-[#315D4F]">
                       <Upload className="w-4 h-4" />
                     </div>
                     <div>
-                      <p className="font-medium text-zinc-800 text-xs">Click to upload deposit slip</p>
-                      <p className="text-[10px] text-zinc-400 mt-0.5">Attach a photo or scan of your bank deposit receipt</p>
+                      <p className="font-semibold text-[#222B1F] text-xs">Click to upload deposit slip</p>
+                      <p className="text-[10px] text-[#7A755D] mt-0.5">Attach a photo or scan of your bank deposit receipt</p>
                     </div>
                   </div>
                 ) : (
-                  <div className="p-3 bg-zinc-50 border border-zinc-200 rounded-2xl space-y-2">
+                  <div className="p-3 bg-[#F9F6EF] border border-[#D6CBB5] rounded-2xl space-y-2">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2.5 overflow-hidden">
-                        <div className="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
+                        <div className="w-8 h-8 rounded-lg bg-[#315D4F] text-[#F9F6EF] flex items-center justify-center shrink-0">
                           {depositSlipPreview ? (
                             <img
                               src={depositSlipPreview}
@@ -574,14 +600,14 @@ export const CheckoutPage: React.FC = () => {
                           )}
                         </div>
                         <div className="min-w-0">
-                          <p className="font-medium text-zinc-900 truncate text-xs">{depositSlipName}</p>
-                          <p className="text-[10px] text-zinc-400">{formatFileSize(depositSlipFile.size)} • Ready to submit</p>
+                          <p className="font-semibold text-[#222B1F] truncate text-xs">{depositSlipName}</p>
+                          <p className="text-[10px] text-[#7A755D]">{formatFileSize(depositSlipFile.size)} • Ready to submit</p>
                         </div>
                       </div>
                       <button
                         type="button"
                         onClick={handleRemoveFile}
-                        className="p-1 rounded-lg text-zinc-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+                        className="p-1 rounded-lg text-[#ADA78A] hover:text-rose-700 transition-colors"
                         title="Remove file"
                       >
                         <X className="w-4 h-4" />
@@ -589,11 +615,11 @@ export const CheckoutPage: React.FC = () => {
                     </div>
 
                     {depositSlipPreview && (
-                      <div className="mt-2 pt-2 border-t border-zinc-200/60">
+                      <div className="mt-2 pt-2 border-t border-[#D6CBB5]">
                         <img
                           src={depositSlipPreview}
                           alt="Slip Preview"
-                          className="max-h-32 w-auto mx-auto rounded-lg border border-zinc-200 object-contain shadow-xs"
+                          className="max-h-32 w-auto mx-auto rounded-lg border border-[#D6CBB5] object-contain shadow-xs"
                         />
                       </div>
                     )}
@@ -603,30 +629,30 @@ export const CheckoutPage: React.FC = () => {
 
               {/* Wire reference input */}
               <div>
-                <label className="block text-zinc-600 font-medium mb-1">
-                  Wire / Slip Reference Code <span className="text-zinc-400 font-normal">(Optional)</span>
+                <label className="block text-[#222B1F] font-semibold mb-1">
+                  Wire / Slip Reference Code <span className="text-[#ADA78A] font-normal">(Optional)</span>
                 </label>
                 <input
                   type="text"
                   placeholder="e.g. SLIP-849204 or Transaction No."
                   value={bankReference}
                   onChange={(e) => setBankReference(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-200 font-mono focus:outline-none focus:ring-2 focus:ring-zinc-900/10 focus:border-zinc-900"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-[#D6CBB5] bg-[#F9F6EF] text-[#222B1F] font-mono focus:outline-none focus:border-[#315D4F]"
                 />
               </div>
             </div>
           )}
 
           {/* Test Mode Simulation Toggle */}
-          <div className="pt-2 flex items-center justify-between text-[11px] text-zinc-500 border-t border-zinc-100">
-            <span>Payment Simulation:</span>
+          <div className="pt-2 flex items-center justify-between text-[11px] text-[#7A755D] border-t border-[#D6CBB5]/60">
+            <span>Payment Gateway Simulator:</span>
             <button
               type="button"
               onClick={() => setSimulateSuccess(!simulateSuccess)}
-              className={`px-2.5 py-1 rounded-lg font-medium transition-colors ${
+              className={`px-2.5 py-1 rounded-lg font-semibold transition-colors ${
                 simulateSuccess
-                  ? 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
-                  : 'bg-red-50 text-red-700 hover:bg-red-100'
+                  ? 'bg-[#E9E4D7] text-[#315D4F] border border-[#D6CBB5]'
+                  : 'bg-rose-50 text-rose-700 border border-rose-200'
               }`}
             >
               {simulateSuccess ? 'Simulate Approval' : 'Simulate Decline'}
@@ -637,7 +663,7 @@ export const CheckoutPage: React.FC = () => {
             type="button"
             onClick={handlePlaceOrder}
             disabled={loading}
-            className="w-full py-3.5 px-5 rounded-2xl bg-zinc-900 hover:bg-zinc-800 text-white font-medium text-xs transition-colors flex items-center justify-center gap-2 disabled:opacity-50 shadow-sm"
+            className="w-full py-4 px-5 rounded-xl bg-[#315D4F] hover:bg-[#19372E] text-[#F9F6EF] font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 disabled:opacity-50 shadow-heritage border border-[#A48B57]/50"
           >
             {loading ? (
               <span>Submitting {getMethodDisplayName(selectedMethod)}...</span>
@@ -646,8 +672,8 @@ export const CheckoutPage: React.FC = () => {
             )}
           </button>
 
-          <div className="flex items-center justify-center gap-1.5 text-[11px] text-zinc-400">
-            <ShieldCheck className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
+          <div className="flex items-center justify-center gap-1.5 text-[11px] text-[#7A755D]">
+            <ShieldCheck className="w-3.5 h-3.5 text-[#315D4F] shrink-0" />
             <span>256-bit SSL encrypted checkout & escrow protection</span>
           </div>
         </div>

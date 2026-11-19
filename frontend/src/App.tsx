@@ -25,7 +25,7 @@ import { AdminOrderDetailsPage } from './pages/AdminOrderDetailsPage';
 import { AdminSellerOrdersPage } from './pages/AdminSellerOrdersPage';
 
 /**
- * Root component setting up context providers and application routing.
+ * Root component setting up context providers and application routing with SERENDIP styling.
  */
 export const App: React.FC = () => {
   return (
@@ -33,7 +33,7 @@ export const App: React.FC = () => {
       <AuthProvider>
         <CurrencyProvider>
           <CartProvider>
-            <div className="min-h-screen flex flex-col bg-zinc-50 text-zinc-900 selection:bg-serendip-100 selection:text-serendip-900 font-sans">
+            <div className="min-h-screen flex flex-col bg-[#F9F6EF] text-[#222B1F] selection:bg-[#315D4F] selection:text-[#F9F6EF] font-sans antialiased">
               <Navbar />
               <main className="flex-1">
                 <Routes>

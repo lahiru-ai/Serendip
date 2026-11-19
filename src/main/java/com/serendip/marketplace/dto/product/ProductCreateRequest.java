@@ -25,13 +25,19 @@ public record ProductCreateRequest(
         @Min(value = 0, message = "Stock quantity cannot be negative")
         int stockQuantity,
 
-        Integer weightGrams
+        Integer weightGrams,
+
+        String imageUrl
 ) {
     public int effectiveWeightGrams() {
         return (weightGrams != null && weightGrams > 0) ? weightGrams : 100;
     }
 
     public ProductCreateRequest(Long sellerId, String name, String category, String description, BigDecimal priceUsd, int stockQuantity) {
-        this(sellerId, name, category, description, priceUsd, stockQuantity, 100);
+        this(sellerId, name, category, description, priceUsd, stockQuantity, 100, null);
+    }
+
+    public ProductCreateRequest(Long sellerId, String name, String category, String description, BigDecimal priceUsd, int stockQuantity, Integer weightGrams) {
+        this(sellerId, name, category, description, priceUsd, stockQuantity, weightGrams, null);
     }
 }

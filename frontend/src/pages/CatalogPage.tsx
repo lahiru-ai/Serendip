@@ -8,7 +8,8 @@ import { ProductFilters, FilterState } from '../components/product/ProductFilter
 const AVAILABLE_CATEGORIES = ['Tea', 'Gems', 'Spices', 'Crafts', 'Apparel'];
 
 /**
- * Catalog page for browsing, searching, and filtering marketplace products.
+ * SERENDIP Catalog Page
+ * Browse, search, and filter authentic Sri Lankan goods.
  */
 export const CatalogPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -113,20 +114,23 @@ export const CatalogPage: React.FC = () => {
   }, [allProducts, filters]);
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 space-y-10">
       
       {/* Page Header */}
-      <div className="border-b border-zinc-200 pb-5 flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-2">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-zinc-900 tracking-tight">
-            Catalog
+      <div className="border-b border-[#D6CBB5] pb-6 flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-3">
+        <div className="space-y-1">
+          <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#A48B57] block">
+            Authentic Island Curations
+          </span>
+          <h1 className="font-serif text-3xl sm:text-4xl font-bold text-[#222B1F] tracking-tight">
+            Marketplace Catalog
           </h1>
-          <p className="text-zinc-500 text-xs sm:text-sm mt-1">
-            Explore authentic Ceylon teas, gems, spices, and crafts.
+          <p className="text-[#7A755D] text-xs sm:text-sm">
+            Handcrafted teas, certified gemstones, organic spices, and generational artisan goods.
           </p>
         </div>
-        <div className="text-xs text-zinc-500">
-          {filteredProducts.length} {filteredProducts.length === 1 ? 'item' : 'items'}
+        <div className="text-xs font-semibold text-[#315D4F] bg-[#E9E4D7] px-3 py-1.5 rounded-full border border-[#D6CBB5] self-start sm:self-auto">
+          {filteredProducts.length} {filteredProducts.length === 1 ? 'curated item' : 'curated items'}
         </div>
       </div>
 
@@ -134,7 +138,7 @@ export const CatalogPage: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 items-start">
         
         {/* Left Column: Filters */}
-        <div className="lg:col-span-1 lg:sticky lg:top-24">
+        <div className="lg:col-span-1 lg:sticky lg:top-28">
           <ProductFilters
             filters={filters}
             onChange={handleFiltersChange}
