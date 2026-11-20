@@ -20,7 +20,6 @@ import { SellerDashboardPage } from './pages/SellerDashboardPage';
 import { SellerOrdersPage } from './pages/SellerOrdersPage';
 import { SellerOrderDetailsPage } from './pages/SellerOrderDetailsPage';
 import { AdminDashboardPage } from './pages/AdminDashboardPage';
-import { AdminOrdersPage } from './pages/AdminOrdersPage';
 import { AdminOrderDetailsPage } from './pages/AdminOrderDetailsPage';
 import { AdminSellerOrdersPage } from './pages/AdminSellerOrdersPage';
 
@@ -60,8 +59,9 @@ export const App: React.FC = () => {
                   <Route path="/seller/orders/:id" element={<SellerOrderDetailsPage />} />
 
                   {/* Admin Governance & Order Management Routes */}
+                  <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
                   <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
-                  <Route path="/admin/orders" element={<AdminOrdersPage />} />
+                  <Route path="/admin/orders" element={<Navigate to="/admin/dashboard" replace />} />
                   <Route path="/admin/orders/:id" element={<AdminOrderDetailsPage />} />
                   <Route path="/admin/sellers/:id" element={<AdminSellerOrdersPage />} />
 

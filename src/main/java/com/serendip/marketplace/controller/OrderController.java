@@ -4,7 +4,6 @@ import com.serendip.marketplace.dto.order.*;
 import com.serendip.marketplace.entity.Order;
 import com.serendip.marketplace.entity.SellerOrder;
 import com.serendip.marketplace.enums.OrderStatus;
-import com.serendip.marketplace.payment.MockPaymentMethod;
 import com.serendip.marketplace.payment.PaymentMethod;
 import com.serendip.marketplace.payment.PaymentMethodFactory;
 import com.serendip.marketplace.service.OrderService;

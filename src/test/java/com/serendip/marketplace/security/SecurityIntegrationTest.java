@@ -3,7 +3,6 @@ package com.serendip.marketplace.security;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.serendip.marketplace.dto.product.ProductPriceUpdateRequest;
 import com.serendip.marketplace.entity.Buyer;
-import com.serendip.marketplace.entity.Product;
 import com.serendip.marketplace.entity.Seller;
 import com.serendip.marketplace.exception.GlobalExceptionHandler;
 import com.serendip.marketplace.service.*;

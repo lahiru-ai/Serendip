@@ -112,11 +112,11 @@ export const AdminOrderDetailsPage: React.FC = () => {
         <h3 className="font-semibold text-zinc-900">Order Not Found</h3>
         <p className="text-xs text-zinc-500">{error || 'Unable to locate order records.'}</p>
         <Link
-          to="/admin/orders"
+          to="/admin/dashboard"
           className="inline-flex items-center gap-1.5 px-4 py-2 bg-zinc-900 text-white rounded-xl text-xs font-semibold"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
-          <span>Back to All Orders</span>
+          <span>Back to Admin Panel</span>
         </Link>
       </div>
     );
@@ -133,11 +133,11 @@ export const AdminOrderDetailsPage: React.FC = () => {
       {/* Header */}
       <div className="border-b border-zinc-200 pb-5 space-y-1">
         <Link
-          to="/admin/orders"
+          to="/admin/dashboard"
           className="inline-flex items-center gap-1 text-xs text-zinc-500 hover:text-zinc-900 font-medium transition-colors mb-1"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
-          <span>Order Management Panel</span>
+          <span>Admin Panel</span>
         </Link>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-3">

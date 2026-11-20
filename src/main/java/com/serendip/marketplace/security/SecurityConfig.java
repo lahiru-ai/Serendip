@@ -56,7 +56,12 @@ public class SecurityConfig {
                 "http://192.168.*:[*]",
                 "http://10.*:[*]",
                 "http://*:5173",
-                "http://*:3000"
+                "http://*:3000",
+                "https://*.vercel.app",
+                "https://*.netlify.app",
+                "https://*.onrender.com",
+                "https://*.railway.app",
+                "*"
         ));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(List.of("*"));

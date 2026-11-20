@@ -53,6 +53,7 @@ public class Review {
         this(buyer, product, null, rating, comment);
     }
 
+    @SuppressWarnings("this-escape")
     public Review(Buyer buyer, Product product, OrderItem orderItem, int rating, String comment) {
         this.buyer = Objects.requireNonNull(buyer, "Reviewer buyer cannot be null.");
         this.product = Objects.requireNonNull(product, "Product cannot be null.");
@@ -64,7 +65,7 @@ public class Review {
     }
 
     /** Validates that rating is within the allowed 1 to 5 star range. */
-    public void validateRating(int rating) {
+    public final void validateRating(int rating) {
         if (rating < 1 || rating > 5) {
             throw new InvalidRatingException(
                 String.format("Review rating %d is invalid; must be between 1 and 5 stars.", rating));

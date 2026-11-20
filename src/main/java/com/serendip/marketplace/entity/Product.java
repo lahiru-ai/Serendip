@@ -75,6 +75,7 @@ public class Product {
         this(name, category, "", price, "USD", stockQuantity, seller, weightGrams);
     }
 
+    @SuppressWarnings("this-escape")
     public Product(String name, String category, String description, BigDecimal inputPrice,
                    String currencyCode, int stockQuantity, Seller seller, int weightGrams) {
         setName(name);

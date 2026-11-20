@@ -290,24 +290,14 @@ export const Navbar: React.FC = () => {
                     )}
 
                     {user.role === 'ADMIN' && (
-                      <>
-                        <Link
-                          to="/admin/dashboard"
-                          onClick={() => setUserDropdownOpen(false)}
-                          className="flex items-center gap-2.5 px-4 py-2 text-xs text-[#222B1F] hover:bg-[#E9E4D7] hover:text-[#315D4F] transition-colors"
-                        >
-                          <ShieldCheck className="w-3.5 h-3.5 text-[#315D4F]" />
-                          Admin Console
-                        </Link>
-                        <Link
-                          to="/admin/orders"
-                          onClick={() => setUserDropdownOpen(false)}
-                          className="flex items-center gap-2.5 px-4 py-2 text-xs text-[#222B1F] hover:bg-[#E9E4D7] hover:text-[#315D4F] transition-colors"
-                        >
-                          <Package className="w-3.5 h-3.5 text-[#315D4F]" />
-                          All Platform Orders
-                        </Link>
-                      </>
+                      <Link
+                        to="/admin/dashboard"
+                        onClick={() => setUserDropdownOpen(false)}
+                        className="flex items-center gap-2.5 px-4 py-2 text-xs text-[#222B1F] hover:bg-[#E9E4D7] hover:text-[#315D4F] transition-colors"
+                      >
+                        <ShieldCheck className="w-3.5 h-3.5 text-[#315D4F]" />
+                        Admin Panel
+                      </Link>
                     )}
 
                     <div className="border-t border-[#D6CBB5]/60 mt-1.5 pt-1.5">
@@ -440,7 +430,7 @@ export const Navbar: React.FC = () => {
                   onClick={() => setMobileMenuOpen(false)} 
                   className="px-3.5 py-2.5 rounded-xl bg-[#E9E4D7] text-[#19372E] font-bold"
                 >
-                  Admin Console
+                  Admin Panel
                 </Link>
               )}
             </div>

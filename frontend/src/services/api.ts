@@ -391,14 +391,14 @@ class ApiService {
 
   /** Activates a user account. */
   async activateUser(userId: number) {
-    return this.request(`/users/${userId}/activate`, {
+    return this.request<any>(`/users/${userId}/activate`, {
       method: 'PUT',
     });
   }
 
   /** Suspends a user account. */
   async suspendUser(userId: number) {
-    return this.request(`/users/${userId}/suspend`, {
+    return this.request<any>(`/users/${userId}/suspend`, {
       method: 'PUT',
     });
   }

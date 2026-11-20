@@ -2,7 +2,6 @@ package com.serendip.marketplace.entity;
 
 import com.serendip.marketplace.enums.AccountStatus;
 import com.serendip.marketplace.enums.OrderStatus;
-import com.serendip.marketplace.enums.UserRole;
 import com.serendip.marketplace.exception.BusinessRuleException;
 import com.serendip.marketplace.exception.InvalidOrderStateException;
 import org.junit.jupiter.api.BeforeEach;

@@ -5,6 +5,8 @@ package com.serendip.marketplace.exception;
  */
 public class InvalidOrderStateException extends BusinessRuleException {
 
+    private static final long serialVersionUID = 1L;
+
     public InvalidOrderStateException(String message) {
         super(message);
     }

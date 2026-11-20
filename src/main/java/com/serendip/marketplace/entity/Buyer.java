@@ -49,6 +49,7 @@ public class Buyer extends User {
         this(fullName, email, passwordHash, null, "123 Maple Street, London, UK");
     }
 
+    @SuppressWarnings("this-escape")
     public Buyer(String fullName, String email, String passwordHash, String phoneNumber, String deliveryAddress) {
         super(fullName, email, passwordHash, phoneNumber);
         this.deliveryAddress = deliveryAddress != null ? deliveryAddress.trim() : "123 Maple Street, London, UK";

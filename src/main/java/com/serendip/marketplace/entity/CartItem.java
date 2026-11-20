@@ -41,6 +41,7 @@ public class CartItem {
     protected CartItem() {
     }
 
+    @SuppressWarnings("this-escape")
     public CartItem(ShoppingCart cart, Product product, int quantity) {
         this.cart = Objects.requireNonNull(cart, "Cart cannot be null.");
         this.product = Objects.requireNonNull(product, "Product cannot be null.");
@@ -74,7 +75,7 @@ public class CartItem {
         setQuantity(quantity);
     }
 
-    public void setQuantity(int quantity) {
+    public final void setQuantity(int quantity) {
         if (quantity <= 0) {
             throw new IllegalArgumentException("Quantity must be strictly positive.");
         }

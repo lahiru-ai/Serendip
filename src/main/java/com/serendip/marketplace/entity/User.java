@@ -68,6 +68,7 @@ public abstract class User {
         this(fullName, email, passwordHash, null);
     }
 
+    @SuppressWarnings("this-escape")
     protected User(String fullName, String email, String passwordHash, String phoneNumber) {
         setFullName(fullName);
         setEmail(email);
@@ -140,14 +141,14 @@ public abstract class User {
         return fullName;
     }
 
-    public void setFullName(String fullName) {
+    public final void setFullName(String fullName) {
         if (fullName == null || fullName.isBlank()) {
             throw new IllegalArgumentException("Full name is required and cannot be blank.");
         }
         this.fullName = fullName.trim();
     }
 
-    public void setName(String name) {
+    public final void setName(String name) {
         setFullName(name);
     }
 
@@ -155,7 +156,7 @@ public abstract class User {
         return email;
     }
 
-    public void setEmail(String email) {
+    public final void setEmail(String email) {
         if (email == null || !email.matches("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$")) {
             throw new IllegalArgumentException("A valid email address is required.");
         }
@@ -166,7 +167,7 @@ public abstract class User {
         return passwordHash;
     }
 
-    public void setPasswordHash(String passwordHash) {
+    public final void setPasswordHash(String passwordHash) {
         if (passwordHash == null || passwordHash.isBlank()) {
             throw new IllegalArgumentException("Password hash is required.");
         }

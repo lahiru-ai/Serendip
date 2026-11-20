@@ -46,6 +46,7 @@ public class Seller extends User {
         this(fullName, email, passwordHash, null, shopName, "Colombo", new BigDecimal("10.00"));
     }
 
+    @SuppressWarnings("this-escape")
     public Seller(String fullName, String email, String passwordHash, String phoneNumber,
                   String shopName, String originCity, BigDecimal commissionRate) {
         super(fullName, email, passwordHash, phoneNumber);

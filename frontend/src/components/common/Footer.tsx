@@ -16,7 +16,7 @@ import {
  */
 export const Footer: React.FC = () => {
   return (
-    <footer className="bg-[#315D4F] text-[#F9F6EF] text-xs border-t border-[#426F60] mt-auto">
+    <footer id="contact" className="bg-[#315D4F] text-[#F9F6EF] text-xs border-t border-[#426F60] mt-auto">
       
       {/* Decorative Gold Ribbon */}
       <div className="h-[2px] w-full bg-gradient-to-r from-[#A48B57] via-[#BD9F75] to-[#A48B57]" />
@@ -150,11 +150,6 @@ export const Footer: React.FC = () => {
                 <Link to="/orders" className="hover:text-[#BD9F75] transition-colors">
                   Track Your Order
                 </Link>
-              </li>
-              <li>
-                <a href="/#contact" className="hover:text-[#BD9F75] transition-colors">
-                  The Serendip Circle
-                </a>
               </li>
             </ul>
           </div>

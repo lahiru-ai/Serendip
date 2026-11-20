@@ -12,7 +12,10 @@ import java.util.List;
 /**
  * Custom UserDetails implementation holding authenticated user information.
  */
+@SuppressWarnings("serial")
 public class CustomUserPrincipal implements UserDetails {
+
+    private static final long serialVersionUID = 1L;
 
     private final Long id;
     private final String email;

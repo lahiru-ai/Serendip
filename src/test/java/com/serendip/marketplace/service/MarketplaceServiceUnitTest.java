@@ -1,12 +1,8 @@
 package com.serendip.marketplace.service;
 
 import com.serendip.marketplace.entity.*;
-import com.serendip.marketplace.enums.OrderStatus;
-import com.serendip.marketplace.enums.PaymentStatus;
-import com.serendip.marketplace.exception.BusinessRuleException;
 import com.serendip.marketplace.exception.InvalidRatingException;
 import com.serendip.marketplace.exception.ResourceNotFoundException;
-import com.serendip.marketplace.payment.MockPaymentMethod;
 import com.serendip.marketplace.repository.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

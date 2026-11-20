@@ -5,6 +5,8 @@ package com.serendip.marketplace.exception;
  */
 public class InvalidRatingException extends BusinessRuleException {
 
+    private static final long serialVersionUID = 1L;
+
     public InvalidRatingException(String message) {
         super(message);
     }

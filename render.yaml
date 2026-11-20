@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: serendip-backend
+    runtime: docker
+    plan: free
+    region: frankfurt
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: SERVER_PORT
+        value: "8080"
+      - key: SPRING_DATASOURCE_URL
+        value: "jdbc:postgresql://aws-0-eu-west-1.pooler.supabase.com:6543/postgres?sslmode=require&prepareThreshold=0"
+      - key: SPRING_DATASOURCE_USERNAME
+        value: "postgres.kqurdsddnazfkjanjhhn"
+      - key: SPRING_DATASOURCE_PASSWORD
+        sync: false

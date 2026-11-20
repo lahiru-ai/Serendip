@@ -12,9 +12,7 @@ import {
   CheckCircle2,
   Award,
   ChevronRight,
-  Star,
-  Mail,
-  Check
+  Star
 } from 'lucide-react';
 import { Product } from '../types';
 import { api } from '../services/api';
@@ -166,8 +164,6 @@ export const HomePage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedCategoryTab, setSelectedCategoryTab] = useState<string>('ALL');
-  const [newsletterEmail, setNewsletterEmail] = useState('');
-  const [newsletterSubmitted, setNewsletterSubmitted] = useState(false);
 
   useEffect(() => {
     let mounted = true;
@@ -199,17 +195,6 @@ export const HomePage: React.FC = () => {
     }
     return products.filter((p) => p.category.toLowerCase() === selectedCategoryTab.toLowerCase()).slice(0, 8);
   }, [products, selectedCategoryTab]);
-
-  const handleNewsletterSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (newsletterEmail.trim()) {
-      setNewsletterSubmitted(true);
-      setTimeout(() => {
-        setNewsletterSubmitted(false);
-        setNewsletterEmail('');
-      }, 5000);
-    }
-  };
 
   return (
     <div className="bg-[#F9F6EF] text-[#222B1F] space-y-20 sm:space-y-28 pb-24">
@@ -678,96 +663,66 @@ export const HomePage: React.FC = () => {
       {/* ========================================================================= */}
       <section id="story" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+        <div className="max-w-4xl mx-auto space-y-8">
           
-          {/* Editorial Visual Composition */}
-          <div className="lg:col-span-5 relative">
-            <div className="aspect-[4/5] rounded-[2.5rem] overflow-hidden border border-[#D6CBB5] shadow-elevated relative group">
-              <img
-                src="https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=900&q=80"
-                alt="Ceylon tea picker in lush highland estate"
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#19372E]/80 via-transparent to-transparent" />
-              
-              <div className="absolute bottom-6 left-6 right-6 text-white space-y-1">
-                <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-[#BD9F75] block">
-                  Heritage Since Antiquity
-                </span>
-                <p className="font-serif text-lg font-bold">
-                  The Legendary Island of Serendib
-                </p>
-                <p className="text-xs text-white/80">
-                  Where ancient maritime trade routes gathered pearls, cinnamon, and sapphires.
-                </p>
-              </div>
-            </div>
-
-            {/* Inset Decorative Gold Badge */}
-            <div className="absolute -top-6 -right-6 w-24 h-24 rounded-full bg-[#315D4F] border-2 border-[#A48B57] text-[#F9F6EF] flex flex-col items-center justify-center p-2 text-center shadow-lg">
-              <span className="font-serif text-sm font-bold text-[#BD9F75]">2500+</span>
-              <span className="text-[8px] uppercase tracking-wider font-semibold">Years of Heritage</span>
-            </div>
-          </div>
-
-          {/* Narrative Story & Why Choose Us */}
-          <div className="lg:col-span-7 space-y-8">
-            
-            <div className="space-y-3">
+          <div className="space-y-3">
+            <div className="flex items-center gap-3">
               <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#A48B57] block">
                 Our Heritage & Mission
               </span>
-              <h2 className="font-serif text-2xl sm:text-4xl font-bold text-[#222B1F] tracking-tight leading-tight">
-                From Ancient Ceylon Trade Routes to Your Doorstep.
-              </h2>
-              <p className="text-[#7A755D] text-sm sm:text-base leading-relaxed">
-                For centuries, merchants, explorers, and navigators called Sri Lanka <em>Serendib</em> — an island of unexpected fortune, fragrant spices, and matchless treasures. Today, SERENDIP honors that legacy by creating a transparent, ethical bridge connecting local Sri Lankan producers with conscious buyers worldwide.
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-[#315D4F]/10 text-[#315D4F] border border-[#315D4F]/20 text-[10px] font-bold uppercase tracking-wider">
+                2500+ Years of Heritage
+              </span>
+            </div>
+            <h2 className="font-serif text-2xl sm:text-4xl font-bold text-[#222B1F] tracking-tight leading-tight">
+              From Ancient Ceylon Trade Routes to Your Doorstep.
+            </h2>
+            <p className="text-[#7A755D] text-sm sm:text-base leading-relaxed">
+              For centuries, merchants, explorers, and navigators called Sri Lanka <em>Serendib</em> — an island of unexpected fortune, fragrant spices, and matchless treasures. Today, SERENDIP honors that legacy by creating a transparent, ethical bridge connecting local Sri Lankan producers with conscious buyers worldwide.
+            </p>
+          </div>
+
+          {/* Why Choose SERENDIP Pillars */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 pt-2">
+            
+            <div className="p-4 bg-[#FFFFFF] rounded-xl border border-[#D6CBB5] space-y-1.5">
+              <h4 className="font-serif text-sm font-bold text-[#315D4F]">1. Direct Fair Trade</h4>
+              <p className="text-xs text-[#7A755D] leading-relaxed">
+                Eliminating predatory middlemen; the vast majority of purchase proceeds flow straight to the village families who craft and harvest.
               </p>
             </div>
 
-            {/* Why Choose SERENDIP Pillars */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 pt-2">
-              
-              <div className="p-4 bg-[#FFFFFF] rounded-xl border border-[#D6CBB5] space-y-1.5">
-                <h4 className="font-serif text-sm font-bold text-[#315D4F]">1. Direct Fair Trade</h4>
-                <p className="text-xs text-[#7A755D] leading-relaxed">
-                  Eliminating predatory middlemen; the vast majority of purchase proceeds flow straight to the village families who craft and harvest.
-                </p>
-              </div>
-
-              <div className="p-4 bg-[#FFFFFF] rounded-xl border border-[#D6CBB5] space-y-1.5">
-                <h4 className="font-serif text-sm font-bold text-[#315D4F]">2. Island Origin Proof</h4>
-                <p className="text-xs text-[#7A755D] leading-relaxed">
-                  Every tea batch, gemstone, and cinnamon quill is inspected for authentic geographic origin and pure Ceylon grade standards.
-                </p>
-              </div>
-
-              <div className="p-4 bg-[#FFFFFF] rounded-xl border border-[#D6CBB5] space-y-1.5">
-                <h4 className="font-serif text-sm font-bold text-[#315D4F]">3. Export-Grade Packing</h4>
-                <p className="text-xs text-[#7A755D] leading-relaxed">
-                  Hermetically sealed and thoughtfully protected with biodegradable materials to maintain mountain estate freshness across air routes.
-                </p>
-              </div>
-
-              <div className="p-4 bg-[#FFFFFF] rounded-xl border border-[#D6CBB5] space-y-1.5">
-                <h4 className="font-serif text-sm font-bold text-[#315D4F]">4. Preserving Ancestral Craft</h4>
-                <p className="text-xs text-[#7A755D] leading-relaxed">
-                  Every order funds apprentice workshops for dying craft techniques like Dumbara mat weaving and traditional mask sculpture.
-                </p>
-              </div>
-
+            <div className="p-4 bg-[#FFFFFF] rounded-xl border border-[#D6CBB5] space-y-1.5">
+              <h4 className="font-serif text-sm font-bold text-[#315D4F]">2. Island Origin Proof</h4>
+              <p className="text-xs text-[#7A755D] leading-relaxed">
+                Every tea batch, gemstone, and cinnamon quill is inspected for authentic geographic origin and pure Ceylon grade standards.
+              </p>
             </div>
 
-            <div>
-              <Link
-                to="/catalog"
-                className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-[#315D4F] hover:bg-[#19372E] text-[#F9F6EF] font-semibold text-xs tracking-wider uppercase transition-all shadow-md"
-              >
-                Experience the Marketplace
-                <ArrowRight className="w-4 h-4 text-[#BD9F75]" />
-              </Link>
+            <div className="p-4 bg-[#FFFFFF] rounded-xl border border-[#D6CBB5] space-y-1.5">
+              <h4 className="font-serif text-sm font-bold text-[#315D4F]">3. Export-Grade Packing</h4>
+              <p className="text-xs text-[#7A755D] leading-relaxed">
+                Hermetically sealed and thoughtfully protected with biodegradable materials to maintain mountain estate freshness across air routes.
+              </p>
             </div>
 
+            <div className="p-4 bg-[#FFFFFF] rounded-xl border border-[#D6CBB5] space-y-1.5">
+              <h4 className="font-serif text-sm font-bold text-[#315D4F]">4. Preserving Ancestral Craft</h4>
+              <p className="text-xs text-[#7A755D] leading-relaxed">
+                Every order funds apprentice workshops for dying craft techniques like Dumbara mat weaving and traditional mask sculpture.
+              </p>
+            </div>
+
+          </div>
+
+          <div>
+            <Link
+              to="/catalog"
+              className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-[#315D4F] hover:bg-[#19372E] text-[#F9F6EF] font-semibold text-xs tracking-wider uppercase transition-all shadow-md"
+            >
+              Experience the Marketplace
+              <ArrowRight className="w-4 h-4 text-[#BD9F75]" />
+            </Link>
           </div>
 
         </div>
@@ -814,70 +769,6 @@ export const HomePage: React.FC = () => {
               </div>
             </div>
           ))}
-        </div>
-
-      </section>
-
-
-      {/* ========================================================================= */}
-      {/* SECTION F.6: NEWSLETTER SUBSCRIPTION (SERENDIP CIRCLE)                    */}
-      {/* ========================================================================= */}
-      <section id="contact" className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-        
-        <div className="bg-[#315D4F] text-[#F9F6EF] rounded-3xl p-8 sm:p-12 text-center relative overflow-hidden border border-[#A48B57] shadow-elevated">
-          
-          {/* Subtle gold decorative ring */}
-          <div className="absolute -top-20 -right-20 w-64 h-64 rounded-full border border-[#A48B57]/30 pointer-events-none" />
-          <div className="absolute -bottom-20 -left-20 w-64 h-64 rounded-full border border-[#BD9F75]/20 pointer-events-none" />
-
-          <div className="relative max-w-xl mx-auto space-y-4">
-            
-            <div className="w-12 h-12 rounded-2xl bg-[#426F60] border border-[#A48B57]/50 text-[#BD9F75] flex items-center justify-center mx-auto shadow-inner">
-              <Mail className="w-6 h-6" />
-            </div>
-
-            <span className="text-[11px] font-bold tracking-[0.25em] text-[#BD9F75] uppercase block">
-              The Serendip Circle
-            </span>
-
-            <h2 className="font-serif text-2xl sm:text-3xl font-bold tracking-tight text-[#F9F6EF]">
-              Join the Sri Lankan Heritage Circle
-            </h2>
-
-            <p className="text-xs sm:text-sm text-[#E9E4D7]/90 leading-relaxed font-normal">
-              Receive private single-estate seasonal tea notices, rare spice harvest arrivals, and an exclusive 10% welcome privilege on your first international order.
-            </p>
-
-            {newsletterSubmitted ? (
-              <div className="py-3 px-6 bg-[#426F60] border border-[#A48B57] rounded-2xl text-xs font-semibold text-[#BD9F75] flex items-center justify-center gap-2 animate-in fade-in">
-                <Check className="w-4 h-4 text-[#BD9F75]" />
-                Ayubowan! You are now subscribed to the Serendip Heritage Circle.
-              </div>
-            ) : (
-              <form onSubmit={handleNewsletterSubmit} className="pt-2 flex flex-col sm:flex-row gap-2.5 max-w-md mx-auto">
-                <input
-                  type="email"
-                  required
-                  placeholder="Enter your email address..."
-                  value={newsletterEmail}
-                  onChange={(e) => setNewsletterEmail(e.target.value)}
-                  className="flex-1 px-4 py-3 text-xs bg-[#19372E] text-[#F9F6EF] placeholder:text-[#ADA78A] rounded-xl border border-[#426F60] focus:border-[#A48B57] focus:outline-none"
-                />
-                <button
-                  type="submit"
-                  className="px-6 py-3 rounded-xl bg-[#A48B57] hover:bg-[#BD9F75] text-[#19372E] font-bold text-xs uppercase tracking-wider transition-all shadow-xs shrink-0"
-                >
-                  Subscribe
-                </button>
-              </form>
-            )}
-
-            <p className="text-[10px] text-[#E9E4D7]/60">
-              We respect your privacy. Unsubscribe at any time with a single click.
-            </p>
-
-          </div>
-
         </div>
 
       </section>

@@ -5,6 +5,8 @@ package com.serendip.marketplace.exception;
  */
 public class ResourceNotFoundException extends BusinessRuleException {
 
+    private static final long serialVersionUID = 1L;
+
     public ResourceNotFoundException(String message) {
         super(message);
     }

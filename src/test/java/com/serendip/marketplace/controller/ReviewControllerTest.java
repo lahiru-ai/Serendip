@@ -3,7 +3,6 @@ package com.serendip.marketplace.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.serendip.marketplace.dto.review.ReviewCreateRequest;
 import com.serendip.marketplace.entity.Buyer;
-import com.serendip.marketplace.entity.OrderItem;
 import com.serendip.marketplace.entity.Product;
 import com.serendip.marketplace.entity.Review;
 import com.serendip.marketplace.entity.Seller;
