@@ -73,9 +73,9 @@ npm run dev
 
 ---
 
-## 👥 Pre-seeded Demo Accounts
+## 👥 Demo Accounts (Optional)
 
-When the application boots for the first time, `DataInitializer` seeds test accounts and catalog items:
+Demo data seeding in `DataInitializer` is disabled by default (`app.data-seeding.enabled=false`). To optionally seed test accounts and catalog items in a development environment, set `app.data-seeding.enabled=true`:
 
 | Role | Email | Password | Access / Scope |
 | :--- | :--- | :--- | :--- |

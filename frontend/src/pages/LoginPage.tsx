@@ -30,12 +30,6 @@ export const LoginPage: React.FC = () => {
     }
   };
 
-  const handleQuickFill = (demoEmail: string, demoPass: string) => {
-    setEmail(demoEmail);
-    setPassword(demoPass);
-    setError(null);
-  };
-
   return (
     <div className="min-h-[80vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8 bg-[#FFFFFF] p-8 sm:p-10 rounded-3xl border border-[#D6CBB5] shadow-premium">
@@ -54,39 +48,6 @@ export const LoginPage: React.FC = () => {
           <p className="text-xs text-[#7A755D]">
             Access your buyer orders, merchant catalog, or admin operations.
           </p>
-        </div>
-
-        {/* Demo Fast-Login Chips */}
-        <div className="p-4 bg-[#E9E4D7]/70 rounded-2xl border border-[#D6CBB5] space-y-2">
-          <p className="text-[11px] font-bold text-[#315D4F] uppercase tracking-wider text-center">
-            Quick fill demo accounts:
-          </p>
-          <div className="grid grid-cols-3 gap-2 text-[11px]">
-            <button
-              type="button"
-              onClick={() => handleQuickFill('buyer@serendip.com', 'BuyerPass123!')}
-              className="px-2 py-1.5 rounded-xl bg-[#FFFFFF] border border-[#D6CBB5] text-[#222B1F] hover:bg-[#315D4F] hover:text-[#F9F6EF] font-semibold truncate transition-colors shadow-xs"
-              title="Buyer Account"
-            >
-              Buyer
-            </button>
-            <button
-              type="button"
-              onClick={() => handleQuickFill('seller@serendip.com', 'SellerPass123!')}
-              className="px-2 py-1.5 rounded-xl bg-[#FFFFFF] border border-[#D6CBB5] text-[#222B1F] hover:bg-[#315D4F] hover:text-[#F9F6EF] font-semibold truncate transition-colors shadow-xs"
-              title="Seller Account"
-            >
-              Seller
-            </button>
-            <button
-              type="button"
-              onClick={() => handleQuickFill('admin@serendip.com', 'AdminPass123!')}
-              className="px-2 py-1.5 rounded-xl bg-[#FFFFFF] border border-[#D6CBB5] text-[#222B1F] hover:bg-[#315D4F] hover:text-[#F9F6EF] font-semibold truncate transition-colors shadow-xs"
-              title="Admin Account"
-            >
-              Admin
-            </button>
-          </div>
         </div>
 
         {/* Error notification */}

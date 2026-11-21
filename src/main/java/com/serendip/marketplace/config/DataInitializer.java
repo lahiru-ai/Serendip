@@ -6,6 +6,7 @@ import com.serendip.marketplace.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,8 +15,11 @@ import java.math.BigDecimal;
 
 /**
  * Initializes default demo accounts and catalog products on application startup.
+ * Disabled by default to prevent seeding demo data into production/active environments.
+ * Enable by setting app.data-seeding.enabled=true if demo data is needed.
  */
 @Component
+@ConditionalOnProperty(name = "app.data-seeding.enabled", havingValue = "true", matchIfMissing = false)
 public class DataInitializer implements CommandLineRunner {
 
     private static final Logger log = LoggerFactory.getLogger(DataInitializer.class);
