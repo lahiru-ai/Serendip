@@ -50,7 +50,7 @@ export const Footer: React.FC = () => {
 
             <div className="pt-2 flex items-center gap-2 text-[11px] text-[#BD9F75]">
               <MapPin className="w-3.5 h-3.5 text-[#A48B57]" />
-              <span>Colombo • Kandy • Galle • Nuwara Eliya</span>
+              <span>Sri Lanka</span>
             </div>
 
             {/* Social Icons */}
