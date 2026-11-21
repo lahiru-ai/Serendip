@@ -8,10 +8,8 @@ import {
   HeartHandshake, 
   Leaf, 
   Sparkles,
-  MapPin,
   CheckCircle2,
-  Award,
-  ChevronRight
+  Award
 } from 'lucide-react';
 import { Product } from '../types';
 import { api } from '../services/api';
@@ -95,34 +93,6 @@ const BENEFITS = [
     description: 'People, Culture, Environment.',
     detail: 'Regenerative farming and ancestral technique preservation.'
   },
-];
-
-// Verified Local Producers
-const PRODUCERS = [
-  {
-    name: 'Ceylon Heritage Crafts Guild',
-    region: 'Kandy & Central Highlands',
-    specialty: 'Hand-carved Kaduru masks, timber ornaments & brass relics',
-    image: 'https://images.unsplash.com/photo-1544717302-de2939b7ef71?auto=format&fit=crop&w=600&q=80',
-    established: 'Est. 1984',
-    badge: 'Heritage Master'
-  },
-  {
-    name: 'Ruhuna Smallholder Tea Guild',
-    region: 'Southern Rainforest Foothills',
-    specialty: 'Low-grown orthodox black teas with sweet caramel notes',
-    image: 'https://images.unsplash.com/photo-1597481499750-3e6b22637e12?auto=format&fit=crop&w=600&q=80',
-    established: 'Est. 1996',
-    badge: 'Rainforest Certified'
-  },
-  {
-    name: 'Matale Spice Valley Farmers',
-    region: 'Matale & Central Valley',
-    specialty: 'Alba grade true cinnamon quills & highland black pepper',
-    image: 'https://images.unsplash.com/photo-1509358271058-acd22cc93898?auto=format&fit=crop&w=600&q=80',
-    established: 'Est. 2002',
-    badge: 'Organic Origin'
-  }
 ];
 
 /**
@@ -507,78 +477,6 @@ export const HomePage: React.FC = () => {
             ))}
           </div>
         )}
-      </section>
-
-
-      {/* ========================================================================= */}
-      {/* SECTION F.1: DISCOVER LOCAL PRODUCERS                                     */}
-      {/* ========================================================================= */}
-      <section id="producers" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-        
-        <div className="bg-[#E9E4D7]/70 rounded-[2.5rem] border border-[#D6CBB5] p-8 sm:p-12 space-y-10">
-          
-          <div className="max-w-3xl space-y-2">
-            <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#A48B57] block">
-              Meet the Masters
-            </span>
-            <h2 className="font-serif text-2xl sm:text-3xl font-bold text-[#222B1F] tracking-tight">
-              Discover Local Producers
-            </h2>
-            <p className="text-[#7A755D] text-xs sm:text-sm">
-              We connect you directly with rural cooperatives, estate smallholders, and generational craft guilds across Sri Lanka.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {PRODUCERS.map((producer, i) => (
-              <div 
-                key={i} 
-                className="bg-[#FFFFFF] rounded-2xl border border-[#D6CBB5] overflow-hidden hover:border-[#A48B57] transition-all duration-300 hover:shadow-premium group flex flex-col justify-between"
-              >
-                <div>
-                  <div className="relative h-44 overflow-hidden bg-[#E9E4D7]">
-                    <img 
-                      src={producer.image} 
-                      alt={producer.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
-                    />
-                    <div className="absolute top-3 right-3 bg-[#315D4F] text-[#F9F6EF] px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border border-[#A48B57]/50">
-                      {producer.badge}
-                    </div>
-                  </div>
-
-                  <div className="p-5 space-y-2">
-                    <div className="flex items-center gap-1.5 text-[11px] text-[#A48B57] font-semibold">
-                      <MapPin className="w-3.5 h-3.5 text-[#315D4F]" />
-                      <span>{producer.region}</span>
-                    </div>
-
-                    <h3 className="font-serif text-base font-bold text-[#222B1F] group-hover:text-[#315D4F] transition-colors">
-                      {producer.name}
-                    </h3>
-
-                    <p className="text-xs text-[#7A755D] leading-relaxed">
-                      {producer.specialty}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="p-5 pt-0 border-t border-[#D6CBB5]/40 mt-4 flex items-center justify-between">
-                  <span className="text-[11px] text-[#ADA78A] font-medium">{producer.established}</span>
-                  <Link
-                    to="/catalog"
-                    className="inline-flex items-center gap-1 text-xs font-bold text-[#315D4F] hover:text-[#19372E]"
-                  >
-                    View Harvests
-                    <ChevronRight className="w-3.5 h-3.5 text-[#A48B57]" />
-                  </Link>
-                </div>
-              </div>
-            ))}
-          </div>
-
-        </div>
-
       </section>
 
 

@@ -115,13 +115,6 @@ export const Navbar: React.FC = () => {
             </Link>
 
             <a 
-              href="/#producers" 
-              className="px-3.5 py-2 rounded-lg text-[#F9F6EF]/85 hover:text-[#F9F6EF] hover:bg-[#426F60]/60 transition-all duration-200"
-            >
-              Producers
-            </a>
-
-            <a 
               href="/#story" 
               className="px-3.5 py-2 rounded-lg text-[#F9F6EF]/85 hover:text-[#F9F6EF] hover:bg-[#426F60]/60 transition-all duration-200"
             >
@@ -384,13 +377,6 @@ export const Navbar: React.FC = () => {
               >
                 Products
               </Link>
-              <a 
-                href="/#producers" 
-                onClick={() => setMobileMenuOpen(false)} 
-                className="px-3.5 py-2.5 rounded-xl hover:bg-[#426F60] transition-all"
-              >
-                Producers
-              </a>
               <a 
                 href="/#story" 
                 onClick={() => setMobileMenuOpen(false)} 

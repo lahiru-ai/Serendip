@@ -137,11 +137,6 @@ export const Footer: React.FC = () => {
                 </Link>
               </li>
               <li>
-                <a href="/#producers" className="hover:text-[#BD9F75] transition-colors">
-                  Meet the Producers
-                </a>
-              </li>
-              <li>
                 <a href="/#story" className="hover:text-[#BD9F75] transition-colors">
                   Our Ceylon Story
                 </a>
