@@ -11,8 +11,7 @@ import {
   MapPin,
   CheckCircle2,
   Award,
-  ChevronRight,
-  Star
+  ChevronRight
 } from 'lucide-react';
 import { Product } from '../types';
 import { api } from '../services/api';
@@ -123,31 +122,6 @@ const PRODUCERS = [
     image: 'https://images.unsplash.com/photo-1509358271058-acd22cc93898?auto=format&fit=crop&w=600&q=80',
     established: 'Est. 2002',
     badge: 'Organic Origin'
-  }
-];
-
-// Customer Testimonials
-const TESTIMONIALS = [
-  {
-    name: 'Claire D.',
-    location: 'London, United Kingdom',
-    text: 'The aroma of the Alba grade cinnamon quills when opening the package was astonishing. It is completely different from ordinary supermarket cinnamon. Beautiful presentation.',
-    product: 'Organic Ceylon True Cinnamon Quills',
-    rating: 5
-  },
-  {
-    name: 'David T.',
-    location: 'Melbourne, Australia',
-    text: 'Received the Nuwara Eliya Silver Tips tea within five days. The packaging kept the delicate leaves completely fresh, and the taste is exceptional. Truly proud to support Sri Lankan farmers.',
-    product: 'Ceylon Silver Tips White Tea',
-    rating: 5
-  },
-  {
-    name: 'Kenji M.',
-    location: 'Kyoto, Japan',
-    text: 'The Kaduru peacock mask arrived meticulously cushioned with its artisan guild certificate. The carved details and pigments are a masterwork of cultural tradition.',
-    product: 'Mayura Raksha Hand-Carved Mask',
-    rating: 5
   }
 ];
 
@@ -725,50 +699,6 @@ export const HomePage: React.FC = () => {
             </Link>
           </div>
 
-        </div>
-
-      </section>
-
-
-      {/* ========================================================================= */}
-      {/* SECTION F.5: CUSTOMER TESTIMONIALS                                        */}
-      {/* ========================================================================= */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
-        <div className="text-center max-w-2xl mx-auto mb-10 space-y-2">
-          <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#A48B57] block">
-            Worldwide Appreciation
-          </span>
-          <h2 className="font-serif text-2xl sm:text-3xl font-bold text-[#222B1F] tracking-tight">
-            Voices from Around the Globe
-          </h2>
-          <div className="w-14 h-0.5 bg-[#A48B57] mx-auto mt-2" />
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {TESTIMONIALS.map((t, idx) => (
-            <div 
-              key={idx}
-              className="bg-[#FFFFFF] p-6 sm:p-7 rounded-2xl border border-[#D6CBB5] flex flex-col justify-between space-y-4 shadow-subtle hover:border-[#A48B57] transition-all"
-            >
-              <div className="space-y-3">
-                <div className="flex items-center text-[#A48B57]">
-                  {Array.from({ length: t.rating }).map((_, i) => (
-                    <Star key={i} className="w-4 h-4 fill-[#A48B57]" />
-                  ))}
-                </div>
-                <p className="text-xs sm:text-sm text-[#222B1F] italic leading-relaxed">
-                  "{t.text}"
-                </p>
-              </div>
-
-              <div className="pt-3 border-t border-[#D6CBB5]/50 space-y-0.5">
-                <h4 className="font-serif text-xs font-bold text-[#315D4F]">{t.name}</h4>
-                <p className="text-[11px] text-[#ADA78A]">{t.location}</p>
-                <p className="text-[10px] text-[#A48B57] font-semibold">Verified Purchase: {t.product}</p>
-              </div>
-            </div>
-          ))}
         </div>
 
       </section>
