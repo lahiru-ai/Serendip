@@ -11,6 +11,22 @@ export interface User {
   phoneNumber?: string;
 }
 
+export interface UserProfile {
+  id: number;
+  fullName: string;
+  email: string;
+  phoneNumber?: string;
+  role: Role;
+  accountStatus: 'ACTIVE' | 'SUSPENDED';
+  deliveryAddress?: string;
+  shopName?: string;
+  shopDescription?: string;
+  originCity?: string;
+  department?: string;
+  commissionRate?: number;
+  createdAt?: string;
+}
+
 export interface Buyer extends User {
   deliveryAddress?: string;
 }

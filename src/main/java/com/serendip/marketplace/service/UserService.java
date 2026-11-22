@@ -1,5 +1,6 @@
 package com.serendip.marketplace.service;
 
+import com.serendip.marketplace.entity.Admin;
 import com.serendip.marketplace.entity.Buyer;
 import com.serendip.marketplace.entity.Seller;
 import com.serendip.marketplace.entity.User;
@@ -8,6 +9,7 @@ import com.serendip.marketplace.exception.ResourceNotFoundException;
 import com.serendip.marketplace.repository.BuyerRepository;
 import com.serendip.marketplace.repository.SellerRepository;
 import com.serendip.marketplace.repository.UserRepository;
+import com.serendip.marketplace.security.SecurityUtils;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -135,6 +137,71 @@ public class UserService {
     public User suspendUser(Long id) {
         User user = getUserById(id);
         user.suspend();
+        return userRepository.save(user);
+    }
+
+    /** Updates personal information for an existing user. */
+    public User updateUserProfile(Long userId, String fullName, String email, String phoneNumber,
+                                  String deliveryAddress, String shopName, String shopDescription,
+                                  String originCity, String department, String newPassword) {
+        User user = getUserById(userId);
+
+        // Enforce ownership or admin privilege
+        SecurityUtils.requireOwnershipOrAdmin(userId, "user profile");
+
+        // Validate and update email
+        if (email != null && !email.trim().equalsIgnoreCase(user.getEmail())) {
+            String trimmedEmail = email.trim().toLowerCase();
+            if (userRepository.existsByEmail(trimmedEmail)) {
+                throw new BusinessRuleException(String.format("User with email '%s' already exists.", trimmedEmail));
+            }
+            user.setEmail(trimmedEmail);
+        }
+
+        // Validate and update full name
+        if (fullName != null && !fullName.isBlank()) {
+            user.setFullName(fullName.trim());
+        }
+
+        // Update phone number
+        user.setPhoneNumber(phoneNumber != null && !phoneNumber.isBlank() ? phoneNumber.trim() : null);
+
+        // Update password if a new password is provided
+        if (newPassword != null && !newPassword.isBlank()) {
+            if (newPassword.trim().length() < 6) {
+                throw new IllegalArgumentException("Password must be at least 6 characters long.");
+            }
+            user.updatePassword(encodePassword(newPassword.trim()));
+        }
+
+        // Update role-specific attributes
+        if (user instanceof Buyer buyer) {
+            if (deliveryAddress != null && !deliveryAddress.isBlank()) {
+                buyer.setDeliveryAddress(deliveryAddress.trim());
+            }
+            return buyerRepository.save(buyer);
+        } else if (user instanceof Seller seller) {
+            if (shopName != null && !shopName.isBlank()) {
+                String trimmedShopName = shopName.trim();
+                if (!trimmedShopName.equalsIgnoreCase(seller.getShopName()) && sellerRepository.existsByShopName(trimmedShopName)) {
+                    throw new BusinessRuleException(String.format("Shop name '%s' is already registered.", trimmedShopName));
+                }
+                seller.setShopName(trimmedShopName);
+            }
+            if (shopDescription != null) {
+                seller.setShopDescription(shopDescription.trim());
+            }
+            if (originCity != null && !originCity.isBlank()) {
+                seller.setOriginCity(originCity.trim());
+            }
+            return sellerRepository.save(seller);
+        } else if (user instanceof Admin admin) {
+            if (department != null && !department.isBlank()) {
+                admin.setDepartment(department.trim());
+            }
+            return userRepository.save(admin);
+        }
+
         return userRepository.save(user);
     }
 

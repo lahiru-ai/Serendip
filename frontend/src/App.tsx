@@ -22,6 +22,7 @@ import { SellerOrderDetailsPage } from './pages/SellerOrderDetailsPage';
 import { AdminDashboardPage } from './pages/AdminDashboardPage';
 import { AdminOrderDetailsPage } from './pages/AdminOrderDetailsPage';
 import { AdminSellerOrdersPage } from './pages/AdminSellerOrdersPage';
+import { ProfilePage } from './pages/ProfilePage';
 
 /**
  * Root component setting up context providers and application routing with SERENDIP styling.
@@ -41,9 +42,10 @@ export const App: React.FC = () => {
                   <Route path="/catalog" element={<CatalogPage />} />
                   <Route path="/products/:id" element={<ProductDetailPage />} />
                   
-                  {/* Auth Routes */}
+                  {/* Auth & Profile Routes */}
                   <Route path="/login" element={<LoginPage />} />
                   <Route path="/register" element={<RegisterPage />} />
+                  <Route path="/profile" element={<ProfilePage />} />
 
                   {/* Buyer Routes */}
                   <Route path="/cart" element={<CartPage />} />

@@ -143,4 +143,65 @@ class MarketplaceServiceUnitTest {
 
         verifyNoInteractions(reviewRepository);
     }
+
+    @Test
+    @DisplayName("UserService: updateUserProfile successfully updates buyer personal details")
+    void testUpdateBuyerProfile() {
+        Buyer buyer = new Buyer("Old Name", "old@mail.com", "pass", "+94771112233", "Old Address");
+        buyer.setId(10L);
+
+        when(userRepository.findById(10L)).thenReturn(Optional.of(buyer));
+        when(userRepository.existsByEmail("new@mail.com")).thenReturn(false);
+        when(buyerRepository.save(any(Buyer.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        User updated = userService.updateUserProfile(
+                10L,
+                "New Name",
+                "new@mail.com",
+                "+94779998877",
+                "New Shipping Address, Colombo",
+                null,
+                null,
+                null,
+                null,
+                null
+        );
+
+        assertThat(updated.getFullName()).isEqualTo("New Name");
+        assertThat(updated.getEmail()).isEqualTo("new@mail.com");
+        assertThat(updated.getPhoneNumber()).isEqualTo("+94779998877");
+        assertThat(((Buyer) updated).getDeliveryAddress()).isEqualTo("New Shipping Address, Colombo");
+        verify(buyerRepository).save(buyer);
+    }
+
+    @Test
+    @DisplayName("UserService: updateUserProfile successfully updates seller storefront details")
+    void testUpdateSellerProfile() {
+        Seller seller = new Seller("Old Seller", "seller@mail.com", "pass", "+94770001122",
+                "Old Shop", "Galle", new BigDecimal("10.00"));
+        seller.setId(20L);
+
+        when(userRepository.findById(20L)).thenReturn(Optional.of(seller));
+        when(sellerRepository.existsByShopName("Ceylon Artisan Treasures")).thenReturn(false);
+        when(sellerRepository.save(any(Seller.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        User updated = userService.updateUserProfile(
+                20L,
+                "Updated Seller Name",
+                "seller@mail.com",
+                "+94770001122",
+                null,
+                "Ceylon Artisan Treasures",
+                "Finest Ceylon cinnamon and spices.",
+                "Kandy",
+                null,
+                null
+        );
+
+        assertThat(updated.getFullName()).isEqualTo("Updated Seller Name");
+        assertThat(((Seller) updated).getShopName()).isEqualTo("Ceylon Artisan Treasures");
+        assertThat(((Seller) updated).getShopDescription()).isEqualTo("Finest Ceylon cinnamon and spices.");
+        assertThat(((Seller) updated).getOriginCity()).isEqualTo("Kandy");
+        verify(sellerRepository).save(seller);
+    }
 }

@@ -3,14 +3,17 @@ package com.serendip.marketplace.controller;
 import com.serendip.marketplace.dto.user.BuyerRegistrationRequest;
 import com.serendip.marketplace.dto.user.SellerRegistrationRequest;
 import com.serendip.marketplace.dto.user.UpdateCommissionRequest;
+import com.serendip.marketplace.dto.user.UserProfileUpdateRequest;
 import com.serendip.marketplace.dto.user.UserResponse;
 import com.serendip.marketplace.entity.Buyer;
 import com.serendip.marketplace.entity.Seller;
 import com.serendip.marketplace.entity.User;
+import com.serendip.marketplace.security.SecurityUtils;
 import com.serendip.marketplace.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -54,11 +57,42 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).body(UserResponse.fromEntity(seller));
     }
 
+    /** Retrieves current authenticated user profile information. */
+    @GetMapping("/me")
+    public ResponseEntity<UserResponse> getCurrentUser() {
+        Long currentUserId = SecurityUtils.getCurrentUserId();
+        if (currentUserId == null) {
+            throw new AccessDeniedException("User is not authenticated.");
+        }
+        User user = userService.getUserById(currentUserId);
+        return ResponseEntity.ok(UserResponse.fromEntity(user));
+    }
+
     /** Retrieves user profile information by ID. */
     @GetMapping("/{id}")
     public ResponseEntity<UserResponse> getUserById(@PathVariable Long id) {
         User user = userService.getUserById(id);
         return ResponseEntity.ok(UserResponse.fromEntity(user));
+    }
+
+    /** Updates user profile and personal information. */
+    @PutMapping("/{id}")
+    public ResponseEntity<UserResponse> updateUserProfile(
+            @PathVariable Long id,
+            @Valid @RequestBody UserProfileUpdateRequest request) {
+        User updated = userService.updateUserProfile(
+                id,
+                request.fullName(),
+                request.email(),
+                request.phoneNumber(),
+                request.deliveryAddress(),
+                request.shopName(),
+                request.shopDescription(),
+                request.originCity(),
+                request.department(),
+                request.newPassword()
+        );
+        return ResponseEntity.ok(UserResponse.fromEntity(updated));
     }
 
     /** Activates a user account. */

@@ -1,6 +1,6 @@
 // Language: TypeScript
 // Purpose: REST API HTTP client service; encapsulates fetch requests, authentication header injection, and typed JSON responses for backend integration.
-import { Product, Review, Cart, Order, AuthResponse, SellerOrder } from '../types';
+import { Product, Review, Cart, Order, AuthResponse, SellerOrder, UserProfile } from '../types';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api/v1';
 
@@ -426,9 +426,32 @@ class ApiService {
     });
   }
 
+  /** Fetches currently authenticated user's profile. */
+  async getCurrentUser(): Promise<UserProfile> {
+    return this.request<UserProfile>('/users/me');
+  }
+
   /** Fetches a user profile by ID (Admin/User). */
-  async getUser(userId: number) {
-    return this.request<any>(`/users/${userId}`);
+  async getUser(userId: number): Promise<UserProfile> {
+    return this.request<UserProfile>(`/users/${userId}`);
+  }
+
+  /** Updates user profile and personal information. */
+  async updateUserProfile(userId: number, data: {
+    fullName: string;
+    email: string;
+    phoneNumber?: string;
+    deliveryAddress?: string;
+    shopName?: string;
+    shopDescription?: string;
+    originCity?: string;
+    department?: string;
+    newPassword?: string;
+  }): Promise<UserProfile> {
+    return this.request<UserProfile>(`/users/${userId}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
   }
 
   /** Updates seller commission rate (Admin only). */

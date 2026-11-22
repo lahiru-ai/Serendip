@@ -323,7 +323,13 @@ export const AdminDashboardPage: React.FC = () => {
         setError(`User #${id} is registered as a ${data.role}, not a SELLER.`);
         setSellerDetails(null);
       } else {
-        setSellerDetails(data);
+        setSellerDetails({
+          id: data.id,
+          fullName: data.fullName,
+          shopName: data.shopName || '',
+          role: data.role,
+          commissionRate: data.commissionRate,
+        });
         setNewRate(data.commissionRate != null ? String(data.commissionRate) : '10.0');
         setCalcRate(data.commissionRate != null ? data.commissionRate : 10.0);
         setMessage(`Loaded merchant profile for "${data.shopName}".`);
@@ -350,7 +356,13 @@ export const AdminDashboardPage: React.FC = () => {
     try {
       const updated = await api.updateSellerCommission(sellerDetails.id, rateNum);
       setMessage(`Commission rate for "${sellerDetails.shopName}" successfully updated to ${rateNum}%.`);
-      setSellerDetails(updated);
+      setSellerDetails({
+        id: updated.id,
+        fullName: updated.fullName,
+        shopName: updated.shopName || '',
+        role: updated.role,
+        commissionRate: updated.commissionRate,
+      });
       setCalcRate(rateNum);
       await loadAllOrders();
     } catch (err: unknown) {

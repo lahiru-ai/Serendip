@@ -9,7 +9,9 @@ import {
   ShieldCheck,
   Menu,
   X,
-  ChevronDown
+  ChevronDown,
+  User as UserIcon,
+  ChevronRight
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useCurrency } from '../../context/CurrencyContext';
@@ -225,30 +227,66 @@ export const Navbar: React.FC = () => {
             {/* Authentication / Account Menu */}
             {isAuthenticated && user ? (
               <div className="relative">
-                <button
-                  type="button"
-                  onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-                  className="flex items-center gap-2 p-1.5 rounded-xl bg-[#426F60]/70 hover:bg-[#426F60] border border-[#A48B57]/50 transition-colors"
-                >
-                  <div className="w-7 h-7 rounded-lg bg-[#A48B57] text-[#19372E] flex items-center justify-center font-bold text-xs uppercase shadow-xs">
-                    {user.fullName.charAt(0)}
-                  </div>
-                  <span className="hidden sm:inline text-xs font-medium text-[#F9F6EF] max-w-[90px] truncate">
-                    {user.fullName.split(' ')[0]}
-                  </span>
-                  <ChevronDown className="w-3.5 h-3.5 text-[#A48B57]" />
-                </button>
+                <div className="flex items-center bg-[#426F60]/70 hover:bg-[#426F60] border border-[#A48B57]/50 rounded-xl transition-colors">
+                  {/* Direct link to profile when clicking avatar or user name on corner */}
+                  <Link
+                    to="/profile"
+                    className="flex items-center gap-2 py-1.5 pl-1.5 pr-1 rounded-l-xl hover:text-[#BD9F75] transition-colors group"
+                    title="View & Edit Personal Information"
+                  >
+                    <div className="w-7 h-7 rounded-lg bg-[#A48B57] text-[#19372E] flex items-center justify-center font-bold text-xs uppercase shadow-xs group-hover:scale-105 transition-transform">
+                      {user.fullName.charAt(0)}
+                    </div>
+                    <span className="hidden sm:inline text-xs font-medium text-[#F9F6EF] max-w-[90px] truncate group-hover:text-[#BD9F75]">
+                      {user.fullName.split(' ')[0]}
+                    </span>
+                  </Link>
+
+                  {/* Dropdown toggle chevron */}
+                  <button
+                    type="button"
+                    onClick={() => setUserDropdownOpen(!userDropdownOpen)}
+                    className="p-1.5 pr-2 rounded-r-xl text-[#A48B57] hover:text-[#F9F6EF] transition-colors focus:outline-none"
+                    aria-label="Account options menu"
+                    title="Account menu"
+                  >
+                    <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${userDropdownOpen ? 'rotate-180' : ''}`} />
+                  </button>
+                </div>
 
                 {/* Dropdown Menu */}
                 {userDropdownOpen && (
                   <div 
-                    className="absolute right-0 mt-2 w-52 bg-[#F9F6EF] text-[#222B1F] rounded-2xl shadow-elevated border border-[#D6CBB5] py-2 z-50 animate-in fade-in slide-in-from-top-1"
+                    className="absolute right-0 mt-2 w-56 bg-[#F9F6EF] text-[#222B1F] rounded-2xl shadow-elevated border border-[#D6CBB5] py-2 z-50 animate-in fade-in slide-in-from-top-1"
                     onMouseLeave={() => setUserDropdownOpen(false)}
                   >
-                    <div className="px-4 py-2 border-b border-[#D6CBB5]/60 bg-[#E9E4D7]/50">
-                      <p className="text-xs font-bold text-[#222B1F] truncate">{user.fullName}</p>
-                      <p className="text-[11px] font-semibold text-[#315D4F] uppercase tracking-wider">{user.role}</p>
-                    </div>
+                    {/* Clickable Header card to see/edit personal info */}
+                    <Link
+                      to="/profile"
+                      onClick={() => setUserDropdownOpen(false)}
+                      className="block px-4 py-2.5 border-b border-[#D6CBB5]/60 bg-[#E9E4D7]/50 hover:bg-[#E9E4D7] transition-colors group"
+                      title="View & edit personal information"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="min-w-0 pr-2">
+                          <p className="text-xs font-bold text-[#222B1F] group-hover:text-[#315D4F] truncate">{user.fullName}</p>
+                          <p className="text-[10px] font-semibold text-[#315D4F] uppercase tracking-wider">{user.role}</p>
+                        </div>
+                        <span className="text-[10px] font-bold text-[#A48B57] group-hover:text-[#315D4F] flex items-center gap-0.5 shrink-0">
+                          Edit <ChevronRight className="w-3 h-3" />
+                        </span>
+                      </div>
+                    </Link>
+
+                    {/* Dedicated Personal Information menu item */}
+                    <Link
+                      to="/profile"
+                      onClick={() => setUserDropdownOpen(false)}
+                      className="flex items-center gap-2.5 px-4 py-2 text-xs text-[#222B1F] hover:bg-[#E9E4D7] hover:text-[#315D4F] font-semibold transition-colors"
+                    >
+                      <UserIcon className="w-3.5 h-3.5 text-[#315D4F]" />
+                      Personal Information
+                    </Link>
 
                     {user.role === 'BUYER' && (
                       <Link
@@ -391,6 +429,17 @@ export const Navbar: React.FC = () => {
               >
                 Contact
               </a>
+
+              {user && (
+                <Link
+                  to="/profile"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-[#426F60]/60 text-[#BD9F75] hover:bg-[#426F60] font-semibold border border-[#A48B57]/30"
+                >
+                  <UserIcon className="w-4 h-4 text-[#A48B57]" />
+                  <span>Personal Information ({user.fullName.split(' ')[0]})</span>
+                </Link>
+              )}
 
               {user?.role === 'BUYER' && (
                 <Link 

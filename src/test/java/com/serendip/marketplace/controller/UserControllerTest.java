@@ -3,6 +3,7 @@ package com.serendip.marketplace.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.serendip.marketplace.dto.user.BuyerRegistrationRequest;
 import com.serendip.marketplace.dto.user.SellerRegistrationRequest;
+import com.serendip.marketplace.dto.user.UserProfileUpdateRequest;
 import com.serendip.marketplace.entity.Buyer;
 import com.serendip.marketplace.entity.Seller;
 import com.serendip.marketplace.exception.GlobalExceptionHandler;
@@ -150,5 +151,44 @@ class UserControllerTest {
         mockMvc.perform(put("/api/v1/users/5/suspend"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.accountStatus").value("SUSPENDED"));
+    }
+
+    @Test
+    @DisplayName("PUT /api/v1/users/{id} - successfully updates user profile")
+    void updateUserProfileSuccess() throws Exception {
+        Buyer buyer = new Buyer("Kamal Updated", "kamal.new@test.com", "secretHash", "+94770001122", "Kandy New Town");
+        buyer.setId(10L);
+
+        when(userService.updateUserProfile(eq(10L), anyString(), anyString(), any(), any(), any(), any(), any(), any(), any()))
+                .thenReturn(buyer);
+
+        UserProfileUpdateRequest request = new UserProfileUpdateRequest(
+                "Kamal Updated", "kamal.new@test.com", "+94770001122",
+                "Kandy New Town", null, null, null, null, null
+        );
+
+        mockMvc.perform(put("/api/v1/users/10")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(10))
+                .andExpect(jsonPath("$.fullName").value("Kamal Updated"))
+                .andExpect(jsonPath("$.email").value("kamal.new@test.com"))
+                .andExpect(jsonPath("$.deliveryAddress").value("Kandy New Town"));
+    }
+
+    @Test
+    @DisplayName("PUT /api/v1/users/{id} - validation error on blank fullName")
+    void updateUserProfileValidationError() throws Exception {
+        UserProfileUpdateRequest request = new UserProfileUpdateRequest(
+                "", "invalid-email", "+9477",
+                null, null, null, null, null, null
+        );
+
+        mockMvc.perform(put("/api/v1/users/10")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("VALIDATION_FAILED"));
     }
 }

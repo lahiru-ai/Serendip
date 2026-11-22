@@ -1,5 +1,6 @@
 package com.serendip.marketplace.dto.user;
 
+import com.serendip.marketplace.entity.Admin;
 import com.serendip.marketplace.entity.Buyer;
 import com.serendip.marketplace.entity.Seller;
 import com.serendip.marketplace.entity.User;
@@ -17,25 +18,38 @@ public record UserResponse(
         String accountStatus,
         String deliveryAddress,
         String shopName,
+        String shopDescription,
         String originCity,
+        String department,
         BigDecimal commissionRate,
         Instant createdAt
 ) {
+    public UserResponse(Long id, String fullName, String email, String phoneNumber,
+                        String role, String accountStatus, String deliveryAddress,
+                        String shopName, String originCity, BigDecimal commissionRate, Instant createdAt) {
+        this(id, fullName, email, phoneNumber, role, accountStatus, deliveryAddress, shopName, null, originCity, null, commissionRate, createdAt);
+    }
+
     public static UserResponse fromEntity(User user) {
         String deliveryAddress = null;
         String shopName = null;
+        String shopDescription = null;
         String originCity = null;
+        String department = null;
         BigDecimal commissionRate = null;
 
         if (user instanceof Buyer buyer) {
             deliveryAddress = buyer.getDeliveryAddress();
         } else if (user instanceof Seller seller) {
             shopName = seller.getShopName();
+            shopDescription = seller.getShopDescription();
             originCity = seller.getOriginCity();
             // Commission rate is confidential and only visible to administrators
             if (SecurityUtils.isAdmin()) {
                 commissionRate = seller.getCommissionRate();
             }
+        } else if (user instanceof Admin admin) {
+            department = admin.getDepartment();
         }
 
         return new UserResponse(
@@ -47,7 +61,9 @@ public record UserResponse(
                 user.getAccountStatus() != null ? user.getAccountStatus().name() : null,
                 deliveryAddress,
                 shopName,
+                shopDescription,
                 originCity,
+                department,
                 commissionRate,
                 user.getCreatedAt()
         );
