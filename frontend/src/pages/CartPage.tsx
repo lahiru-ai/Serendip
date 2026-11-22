@@ -50,6 +50,13 @@ export const CartPage: React.FC = () => {
 
   const items = cart?.items || [];
   const isEmpty = items.length === 0;
+  const computedSubtotal = items.reduce((sum, item) => sum + (Number(item.subtotal) || 0), 0);
+  const cartTotal = (typeof cart?.total === 'number' && cart.total > 0)
+    ? cart.total
+    : (typeof cart?.totalAmount === 'number' && cart.totalAmount > 0)
+      ? cart.totalAmount
+      : computedSubtotal;
+  const itemCount = cart?.totalItemCount ?? items.reduce((sum, it) => sum + (it.quantity || 1), 0);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 space-y-10">
@@ -182,8 +189,8 @@ export const CartPage: React.FC = () => {
 
             <div className="space-y-3.5 text-xs">
               <div className="flex justify-between text-[#7A755D]">
-                <span>Items Subtotal ({cart?.totalItemCount} items)</span>
-                <span className="font-semibold text-[#222B1F]">{formatPrice(cart?.total || 0)}</span>
+                <span>Items Subtotal ({itemCount} {itemCount === 1 ? 'item' : 'items'})</span>
+                <span className="font-semibold text-[#222B1F]">{formatPrice(cartTotal)}</span>
               </div>
               <div className="flex justify-between text-[#7A755D]">
                 <span>Export Packaging</span>
@@ -198,7 +205,7 @@ export const CartPage: React.FC = () => {
             <div className="border-t border-[#D6CBB5] pt-4 flex justify-between items-baseline">
               <span className="font-serif text-sm font-bold text-[#222B1F]">Estimated Total</span>
               <span className="font-serif text-2xl font-bold text-[#315D4F]">
-                {formatPrice(cart?.total || 0)}
+                {formatPrice(cartTotal)}
               </span>
             </div>
 

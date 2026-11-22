@@ -18,6 +18,26 @@ interface CartContextType {
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
+const normalizeCart = (c: any): Cart | null => {
+  if (!c) return null;
+  const items = c.items || [];
+  const itemsSum = items.reduce((sum: number, it: any) => sum + (Number(it.subtotal) || 0), 0);
+  const resolvedTotal = (typeof c.total === 'number' && c.total > 0)
+    ? c.total
+    : (typeof c.totalAmount === 'number' && c.totalAmount > 0)
+      ? c.totalAmount
+      : itemsSum;
+
+  return {
+    ...c,
+    items,
+    total: resolvedTotal,
+    totalAmount: c.totalAmount ?? resolvedTotal,
+    totalItemCount: c.totalItemCount ?? items.reduce((sum: number, it: any) => sum + (Number(it.quantity) || 1), 0),
+    empty: items.length === 0,
+  };
+};
+
 /**
  * Manages buyer shopping cart state, item counts, and totals.
  */
@@ -39,7 +59,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setIsLoading(true);
       setError(null);
       const data = await api.getCart(buyerId);
-      setCart(data);
+      setCart(normalizeCart(data));
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Failed to load cart';
       setError(msg);
@@ -60,7 +80,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setError(null);
     try {
       const updated = await api.addToCart(buyerId, productId, quantity);
-      setCart(updated);
+      setCart(normalizeCart(updated));
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Could not add item to cart';
       setError(msg);
@@ -76,7 +96,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setError(null);
     try {
       const updated = await api.updateCartItem(buyerId, productId, quantity);
-      setCart(updated);
+      setCart(normalizeCart(updated));
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Could not update quantity';
       setError(msg);
@@ -92,7 +112,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setError(null);
     try {
       const updated = await api.removeFromCart(buyerId, productId);
-      setCart(updated);
+      setCart(normalizeCart(updated));
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Could not remove item';
       setError(msg);

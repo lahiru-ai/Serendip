@@ -77,6 +77,12 @@ export const CheckoutPage: React.FC = () => {
   }
 
   const items = cart?.items || [];
+  const computedSubtotal = items.reduce((sum, item) => sum + (Number(item.subtotal) || 0), 0);
+  const cartTotal = (typeof cart?.total === 'number' && cart.total > 0)
+    ? cart.total
+    : (typeof cart?.totalAmount === 'number' && cart.totalAmount > 0)
+      ? cart.totalAmount
+      : computedSubtotal;
   if (items.length === 0 && !completedOrder) {
     return (
       <div className="max-w-md mx-auto my-20 p-8 bg-[#FFFFFF] border border-[#D6CBB5] rounded-3xl text-center shadow-premium space-y-4">
@@ -359,7 +365,7 @@ export const CheckoutPage: React.FC = () => {
           <div className="pt-4 border-t border-[#D6CBB5] space-y-2 text-xs">
             <div className="flex justify-between text-[#7A755D]">
               <span>Subtotal</span>
-              <span className="font-semibold text-[#222B1F]">{formatPrice(cart?.total || 0)}</span>
+              <span className="font-semibold text-[#222B1F]">{formatPrice(cartTotal)}</span>
             </div>
             <div className="flex justify-between text-[#7A755D]">
               <span>Currency Basis</span>
@@ -371,7 +377,7 @@ export const CheckoutPage: React.FC = () => {
             </div>
             <div className="flex justify-between text-base font-bold text-[#222B1F] pt-3 border-t border-[#D6CBB5]">
               <span className="font-serif">Grand Total</span>
-              <span className="font-serif text-xl text-[#315D4F]">{formatPrice(cart?.total || 0)}</span>
+              <span className="font-serif text-xl text-[#315D4F]">{formatPrice(cartTotal)}</span>
             </div>
           </div>
         </div>
@@ -668,7 +674,7 @@ export const CheckoutPage: React.FC = () => {
             {loading ? (
               <span>Submitting {getMethodDisplayName(selectedMethod)}...</span>
             ) : (
-              <span>Pay with {getMethodDisplayName(selectedMethod)} • {formatPrice(cart?.total || 0)}</span>
+              <span>Pay with {getMethodDisplayName(selectedMethod)} • {formatPrice(cartTotal)}</span>
             )}
           </button>
 

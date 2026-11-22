@@ -88,11 +88,13 @@ export interface CartItem {
 
 /** Shopping cart holding items selected by a buyer. */
 export interface Cart {
+  id?: number;
   buyerId: number;
   items: CartItem[];
   totalItemCount: number;
   total: number;
-  empty: boolean;
+  totalAmount?: number;
+  empty?: boolean;
 }
 
 export interface OrderItem {
