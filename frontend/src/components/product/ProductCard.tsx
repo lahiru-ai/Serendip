@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ShoppingBag, Check, AlertCircle, Heart, Star, Sparkles } from 'lucide-react';
+import { ShoppingBag, Check, AlertCircle, Heart, Star, Sparkles, Scale } from 'lucide-react';
 import { Product } from '../../types';
 import { useCurrency } from '../../context/CurrencyContext';
 import { useCart } from '../../context/CartContext';
@@ -129,10 +129,20 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, badge }) => {
           )}
         </div>
 
-        {/* Category Pill on Image */}
-        <span className="absolute bottom-2.5 left-3 text-[11px] font-semibold text-[#F9F6EF] drop-shadow-md tracking-wider uppercase">
-          {product.category}
-        </span>
+        {/* Category Pill and Weight Badge on Image */}
+        <div className="absolute bottom-2.5 left-3 flex items-center gap-1.5 z-10 flex-wrap pr-3">
+          <span className="text-[11px] font-semibold text-[#F9F6EF] drop-shadow-md tracking-wider uppercase">
+            {product.category}
+          </span>
+          {product.weightGrams && product.weightGrams > 0 ? (
+            <span className="px-2 py-0.5 text-[10px] font-bold bg-[#19372E]/90 text-[#BD9F75] rounded-full backdrop-blur-xs border border-[#A48B57]/40 flex items-center gap-0.5">
+              <Scale className="w-2.5 h-2.5 text-[#A48B57]" />
+              {product.weightGrams >= 1000 
+                ? `${(product.weightGrams / 1000).toFixed(product.weightGrams % 1000 === 0 ? 0 : 1)}kg` 
+                : `${product.weightGrams}g`}
+            </span>
+          ) : null}
+        </div>
 
         {/* Wishlist Button */}
         <button
@@ -153,13 +163,20 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, badge }) => {
       {/* Product Content Details */}
       <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between space-y-3">
         <div className="space-y-1.5">
-          {/* Producer / Artisan info */}
-          <p className="text-[11px] font-medium text-[#7A755D] truncate flex items-center gap-1">
-            <span>By</span>
-            <span className="text-[#315D4F] font-semibold hover:underline">
-              {product.sellerShopName || 'Ceylon Heritage Guild'}
-            </span>
-          </p>
+          {/* Producer / Artisan info & Weight */}
+          <div className="flex items-center justify-between gap-2 text-[11px] font-medium text-[#7A755D]">
+            <p className="truncate flex items-center gap-1 min-w-0">
+              <span>By</span>
+              <span className="text-[#315D4F] font-semibold hover:underline truncate">
+                {product.sellerShopName || 'Ceylon Heritage Guild'}
+              </span>
+            </p>
+            {product.weightGrams && product.weightGrams > 0 ? (
+              <span className="text-[10px] font-semibold text-[#315D4F] bg-[#E9E4D7] border border-[#D6CBB5] px-1.5 py-0.5 rounded shrink-0">
+                Weight: {product.weightGrams >= 1000 ? `${(product.weightGrams / 1000).toFixed(product.weightGrams % 1000 === 0 ? 0 : 1)} kg` : `${product.weightGrams}g`}
+              </span>
+            ) : null}
+          </div>
 
           {/* Product Title */}
           <Link to={`/products/${product.id}`} className="block">

@@ -11,7 +11,8 @@ import {
   MessageSquare,
   Sparkles,
   MapPin,
-  HeartHandshake
+  HeartHandshake,
+  Scale
 } from 'lucide-react';
 import { Product, Review } from '../types';
 import { api } from '../services/api';
@@ -180,7 +181,7 @@ export const ProductDetailPage: React.FC = () => {
               alt={product.name}
               className="w-full h-full object-cover"
             />
-            <div className="absolute top-4 left-4 flex gap-2">
+            <div className="absolute top-4 left-4 flex gap-2 flex-wrap">
               <span className="px-3.5 py-1.5 text-xs font-bold uppercase tracking-wider bg-[#315D4F] text-[#F9F6EF] border border-[#A48B57]/50 rounded-full shadow-sm">
                 {product.category}
               </span>
@@ -188,6 +189,12 @@ export const ProductDetailPage: React.FC = () => {
                 <Sparkles className="w-3 h-3 text-[#A48B57]" />
                 Certified Ceylon
               </span>
+              {product.weightGrams && product.weightGrams > 0 ? (
+                <span className="px-3.5 py-1.5 text-xs font-bold uppercase tracking-wider bg-[#19372E]/90 text-[#BD9F75] border border-[#A48B57]/60 rounded-full shadow-sm flex items-center gap-1 backdrop-blur-xs">
+                  <Scale className="w-3 h-3 text-[#A48B57]" />
+                  Weight: {product.weightGrams >= 1000 ? `${(product.weightGrams / 1000).toFixed(product.weightGrams % 1000 === 0 ? 0 : 2)} kg` : `${product.weightGrams}g`}
+                </span>
+              ) : null}
             </div>
           </div>
         </div>
@@ -235,7 +242,7 @@ export const ProductDetailPage: React.FC = () => {
           </div>
 
           {/* Specifications */}
-          <div className="grid grid-cols-2 gap-4 text-xs">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-xs">
             <div className="p-4 bg-[#FFFFFF] rounded-2xl border border-[#D6CBB5]">
               <span className="text-[#7A755D] block mb-0.5 font-semibold text-[11px] uppercase tracking-wider">Origin</span>
               <span className="font-serif font-bold text-[#222B1F] text-sm flex items-center gap-1.5">
@@ -243,6 +250,17 @@ export const ProductDetailPage: React.FC = () => {
                 Sri Lanka (Ceylon)
               </span>
             </div>
+            {product.weightGrams && product.weightGrams > 0 ? (
+              <div className="p-4 bg-[#FFFFFF] rounded-2xl border border-[#D6CBB5]">
+                <span className="text-[#7A755D] block mb-0.5 font-semibold text-[11px] uppercase tracking-wider">Weight</span>
+                <span className="font-serif font-bold text-[#222B1F] text-sm flex items-center gap-1.5">
+                  <Scale className="w-3.5 h-3.5 text-[#315D4F]" />
+                  {product.weightGrams >= 1000 
+                    ? `${(product.weightGrams / 1000).toFixed(product.weightGrams % 1000 === 0 ? 0 : 2)} kg (${product.weightGrams}g)` 
+                    : `${product.weightGrams}g`}
+                </span>
+              </div>
+            ) : null}
             <div className="p-4 bg-[#FFFFFF] rounded-2xl border border-[#D6CBB5]">
               <span className="text-[#7A755D] block mb-0.5 font-semibold text-[11px] uppercase tracking-wider">Availability</span>
               <span className={`font-semibold text-sm ${product.stockQuantity > 0 ? 'text-[#315D4F]' : 'text-rose-700'}`}>

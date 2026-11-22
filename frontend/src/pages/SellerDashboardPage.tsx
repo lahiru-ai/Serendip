@@ -462,6 +462,7 @@ export const SellerDashboardPage: React.FC = () => {
                   <th className="py-3.5 px-5">Price (USD)</th>
                   <th className="py-3.5 px-5">Price (LKR)</th>
                   <th className="py-3.5 px-5">Stock</th>
+                  <th className="py-3.5 px-5">Weight</th>
                   <th className="py-3.5 px-5">Status</th>
                   <th className="py-3.5 px-5 text-right">Actions</th>
                 </tr>
@@ -503,6 +504,10 @@ export const SellerDashboardPage: React.FC = () => {
                       <span className={p.stockQuantity < 5 ? 'text-amber-700 font-bold' : 'text-[#222B1F]'}>
                         {p.stockQuantity}
                       </span>
+                    </td>
+
+                    <td className="py-3 px-5 text-xs text-[#7A755D] font-medium">
+                      {p.weightGrams ? `${p.weightGrams}g` : '—'}
                     </td>
 
                     <td className="py-3 px-5">
