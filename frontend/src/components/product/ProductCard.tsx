@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ShoppingBag, Check, AlertCircle, Heart, Star, Sparkles, Scale } from 'lucide-react';
+import { ShoppingBag, Check, AlertCircle, Heart, Star, Sparkles } from 'lucide-react';
 import { Product } from '../../types';
 import { useCurrency } from '../../context/CurrencyContext';
 import { useCart } from '../../context/CartContext';
@@ -129,19 +129,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, badge }) => {
           )}
         </div>
 
-        {/* Category Pill and Weight Badge on Image */}
-        <div className="absolute bottom-2.5 left-3 flex items-center gap-1.5 z-10 flex-wrap pr-3">
+        {/* Category Pill on Image */}
+        <div className="absolute bottom-2.5 left-3 flex items-center z-10 pr-3">
           <span className="text-[11px] font-semibold text-[#F9F6EF] drop-shadow-md tracking-wider uppercase">
             {product.category}
           </span>
-          {product.weightGrams && product.weightGrams > 0 ? (
-            <span className="px-2 py-0.5 text-[10px] font-bold bg-[#19372E]/90 text-[#BD9F75] rounded-full backdrop-blur-xs border border-[#A48B57]/40 flex items-center gap-0.5">
-              <Scale className="w-2.5 h-2.5 text-[#A48B57]" />
-              {product.weightGrams >= 1000 
-                ? `${(product.weightGrams / 1000).toFixed(product.weightGrams % 1000 === 0 ? 0 : 1)}kg` 
-                : `${product.weightGrams}g`}
-            </span>
-          ) : null}
         </div>
 
         {/* Wishlist Button */}
