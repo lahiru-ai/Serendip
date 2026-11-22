@@ -3,7 +3,9 @@ package com.serendip.marketplace.controller;
 import com.serendip.marketplace.dto.product.*;
 import com.serendip.marketplace.entity.Product;
 import com.serendip.marketplace.service.ProductService;
+import com.serendip.marketplace.service.ReviewService;
 import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -22,9 +24,17 @@ import java.util.List;
 public class ProductController {
 
     private final ProductService productService;
+    private final ReviewService reviewService;
 
     public ProductController(ProductService productService) {
+        this(productService, null);
+    }
+
+    @Autowired
+    public ProductController(ProductService productService,
+                             @Autowired(required = false) ReviewService reviewService) {
         this.productService = productService;
+        this.reviewService = reviewService;
     }
 
     /** Browses active products or filters by seller or category. */
@@ -42,8 +52,17 @@ public class ProductController {
             products = productService.getActiveProducts();
         }
 
+        java.util.Map<Long, ReviewService.ReviewStats> statsMap = (reviewService != null)
+                ? reviewService.getReviewStatsMap()
+                : java.util.Collections.emptyMap();
+
         List<ProductResponse> responses = products.stream()
-                .map(ProductResponse::fromEntity)
+                .map(p -> {
+                    ReviewService.ReviewStats s = statsMap.get(p.getId());
+                    Double avg = s != null ? s.averageRating() : null;
+                    int count = s != null ? s.reviewCount() : 0;
+                    return ProductResponse.fromEntity(p, avg, count);
+                })
                 .toList();
         return ResponseEntity.ok(responses);
     }
@@ -58,7 +77,14 @@ public class ProductController {
     @GetMapping("/{id}")
     public ResponseEntity<ProductResponse> getProductById(@PathVariable Long id) {
         Product product = productService.getProductById(id);
-        return ResponseEntity.ok(ProductResponse.fromEntity(product));
+        Double avg = null;
+        int count = 0;
+        if (reviewService != null) {
+            ReviewService.ReviewStats s = reviewService.getReviewStats(id);
+            avg = s.averageRating();
+            count = s.reviewCount();
+        }
+        return ResponseEntity.ok(ProductResponse.fromEntity(product, avg, count));
     }
 
     /** Creates a new product with price in USD. */

@@ -8,6 +8,7 @@ import com.serendip.marketplace.service.ReviewService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,6 +18,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/api/v1/reviews")
+@Transactional(readOnly = true)
 public class ReviewController {
 
     private final ReviewService reviewService;
@@ -27,6 +29,7 @@ public class ReviewController {
 
     /** Submits a review and star rating for a purchased item or product. */
     @PostMapping
+    @Transactional
     public ResponseEntity<ReviewResponse> addReview(@Valid @RequestBody ReviewCreateRequest request) {
         if (request.orderItemId() == null && request.productId() == null) {
             throw new IllegalArgumentException("Either product ID or order item ID must be provided.");

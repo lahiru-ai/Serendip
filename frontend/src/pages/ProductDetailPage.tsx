@@ -73,6 +73,14 @@ export const ProductDetailPage: React.FC = () => {
   const [added, setAdded] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
 
+  // Review submission state
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const [reviewRating, setReviewRating] = useState(5);
+  const [reviewComment, setReviewComment] = useState('');
+  const [submittingReview, setSubmittingReview] = useState(false);
+  const [reviewError, setReviewError] = useState<string | null>(null);
+  const [reviewSuccess, setReviewSuccess] = useState<string | null>(null);
+
   useEffect(() => {
     async function loadData() {
       if (isNaN(productId)) return;
@@ -119,6 +127,35 @@ export const ProductDetailPage: React.FC = () => {
     }
   };
 
+  const handleReviewSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user || !product) return;
+    if (!reviewComment.trim()) {
+      setReviewError('Please share your comments in the review.');
+      return;
+    }
+    setSubmittingReview(true);
+    setReviewError(null);
+    try {
+      const newReview = await api.addReview({
+        buyerId: user.id,
+        productId: product.id,
+        rating: reviewRating,
+        comment: reviewComment.trim(),
+      });
+      setReviews((prev) => [newReview, ...prev]);
+      setReviewSuccess('Thank you! Your verified review has been published.');
+      setShowReviewModal(false);
+      setReviewComment('');
+      setReviewRating(5);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to submit review';
+      setReviewError(msg);
+    } finally {
+      setSubmittingReview(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 animate-pulse space-y-8">
@@ -153,10 +190,14 @@ export const ProductDetailPage: React.FC = () => {
   }
 
   const imageUrl = getItemImage(product);
-  const hasReviews = reviews.length > 0;
-  const averageRating = hasReviews 
-    ? (reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length).toFixed(1) 
-    : null;
+  const hasReviews = reviews.length > 0 || Boolean(product.reviewCount && product.reviewCount > 0);
+  const averageRating = reviews.length > 0
+    ? (reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length).toFixed(1)
+    : product.averageRating != null
+      ? Number(product.averageRating).toFixed(1)
+      : null;
+  const reviewCount = reviews.length > 0 ? reviews.length : (product.reviewCount || 0);
+  const alreadyReviewed = user ? reviews.some((r) => r.buyerId === user.id) : false;
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 space-y-12">
@@ -210,7 +251,7 @@ export const ProductDetailPage: React.FC = () => {
                 <div className="flex items-center gap-1 text-[#A48B57]">
                   <Star className="w-4 h-4 fill-[#A48B57]" />
                   <span className="font-bold text-[#222B1F]">{averageRating}</span>
-                  <span className="text-[#ADA78A]">({reviews.length} {reviews.length === 1 ? 'review' : 'reviews'})</span>
+                  <span className="text-[#ADA78A]">({reviewCount} {reviewCount === 1 ? 'review' : 'reviews'})</span>
                 </div>
               ) : (
                 <div className="flex items-center gap-1 text-[#ADA78A]">
@@ -362,14 +403,33 @@ export const ProductDetailPage: React.FC = () => {
           <div className="flex items-center gap-2.5">
             <MessageSquare className="w-5 h-5 text-[#315D4F]" />
             <h2 className="font-serif text-2xl font-bold text-[#222B1F]">
-              Customer Reviews ({reviews.length})
+              Customer Reviews ({reviews.length > 0 ? reviews.length : reviewCount})
             </h2>
           </div>
 
-          <span className="text-xs text-[#7A755D] bg-[#E9E4D7] px-3.5 py-1.5 rounded-xl border border-[#D6CBB5] font-medium">
-            Verified international buyer reviews
-          </span>
+          <div className="flex items-center gap-3">
+            <span className="text-xs text-[#7A755D] bg-[#E9E4D7] px-3.5 py-1.5 rounded-xl border border-[#D6CBB5] font-medium">
+              Verified international buyer reviews
+            </span>
+            {isAuthenticated && role === 'BUYER' && !alreadyReviewed && (
+              <button
+                type="button"
+                onClick={() => setShowReviewModal(true)}
+                className="px-4 py-1.5 bg-[#315D4F] hover:bg-[#19372E] text-[#F9F6EF] rounded-xl text-xs font-bold transition-all shadow-sm border border-[#A48B57]/40 flex items-center gap-1.5"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-[#BD9F75]" />
+                Write a Review
+              </button>
+            )}
+          </div>
         </div>
+
+        {reviewSuccess && (
+          <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-2xl text-emerald-800 text-xs flex items-center gap-2">
+            <Check className="w-4 h-4 text-emerald-600 shrink-0" />
+            <span>{reviewSuccess}</span>
+          </div>
+        )}
 
         {reviews.length === 0 ? (
           <div className="bg-[#FFFFFF] rounded-2xl p-8 text-center border border-[#D6CBB5] space-y-1">
@@ -379,11 +439,22 @@ export const ProductDetailPage: React.FC = () => {
         ) : (
           <div className="space-y-4">
             {reviews.map((rev) => (
-              <div key={rev.id} className="bg-[#FFFFFF] border border-[#D6CBB5] rounded-2xl p-5 shadow-subtle space-y-2">
+              <div key={rev.id} className="bg-[#FFFFFF] border border-[#D6CBB5] rounded-2xl p-5 shadow-subtle space-y-2.5">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="font-serif font-bold text-xs text-[#222B1F]">{rev.buyerName || 'Verified International Buyer'}</span>
-                    <span className="text-[10px] text-[#ADA78A]">{new Date(rev.createdAt).toLocaleDateString()}</span>
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-full bg-[#E9E4D7] border border-[#D6CBB5] flex items-center justify-center font-bold text-xs text-[#315D4F]">
+                      {(rev.buyerName || 'B').charAt(0).toUpperCase()}
+                    </div>
+                    <div>
+                      <p className="font-serif font-bold text-xs text-[#222B1F]">{rev.buyerName || 'Verified International Buyer'}</p>
+                      <p className="text-[10px] text-[#ADA78A]">
+                        {new Date(rev.createdAt).toLocaleDateString(undefined, {
+                          year: 'numeric',
+                          month: 'short',
+                          day: 'numeric',
+                        })}
+                      </p>
+                    </div>
                   </div>
                   <div className="flex items-center gap-0.5 text-[#A48B57]">
                     {Array.from({ length: 5 }).map((_, i) => (
@@ -394,12 +465,104 @@ export const ProductDetailPage: React.FC = () => {
                     ))}
                   </div>
                 </div>
-                <p className="text-xs text-[#222B1F] leading-relaxed">{rev.comment}</p>
+                <p className="text-xs text-[#222B1F] leading-relaxed pl-10 italic">"{rev.comment}"</p>
               </div>
             ))}
           </div>
         )}
       </div>
+
+      {/* Review Submission Modal */}
+      {showReviewModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4">
+          <div className="bg-[#FFFFFF] rounded-3xl border border-[#D6CBB5] max-w-lg w-full p-6 sm:p-8 space-y-5 shadow-premium">
+            <div className="flex items-center justify-between border-b border-[#D6CBB5]/60 pb-3">
+              <div>
+                <h3 className="font-serif text-lg font-bold text-[#222B1F]">Write a Review</h3>
+                <p className="text-xs text-[#7A755D] mt-0.5">{product.name}</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowReviewModal(false);
+                  setReviewError(null);
+                }}
+                className="text-[#7A755D] hover:text-[#222B1F] text-lg font-bold"
+              >
+                ✕
+              </button>
+            </div>
+
+            {reviewError && (
+              <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-rose-800 text-xs flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0" />
+                <span>{reviewError}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleReviewSubmit} className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-[#222B1F] mb-1.5 uppercase tracking-wider">
+                  Your Rating
+                </label>
+                <div className="flex items-center gap-1.5">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                      key={star}
+                      type="button"
+                      onClick={() => setReviewRating(star)}
+                      className="p-1 focus:outline-none transition-transform hover:scale-110"
+                    >
+                      <Star
+                        className={`w-6 h-6 ${
+                          star <= reviewRating ? 'fill-[#A48B57] text-[#A48B57]' : 'text-[#D6CBB5]'
+                        }`}
+                      />
+                    </button>
+                  ))}
+                  <span className="text-xs font-bold text-[#315D4F] ml-2">
+                    {reviewRating} {reviewRating === 1 ? 'Star' : 'Stars'}
+                  </span>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#222B1F] mb-1.5 uppercase tracking-wider">
+                  Review Feedback
+                </label>
+                <textarea
+                  rows={4}
+                  required
+                  value={reviewComment}
+                  onChange={(e) => setReviewComment(e.target.value)}
+                  placeholder="Share details of your experience with this authentic Ceylon item..."
+                  className="w-full px-3.5 py-2.5 bg-[#F9F6EF] text-[#222B1F] border border-[#D6CBB5] rounded-xl text-xs focus:outline-none focus:border-[#315D4F]"
+                />
+              </div>
+
+              <div className="flex justify-end gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowReviewModal(false);
+                    setReviewError(null);
+                  }}
+                  className="px-4 py-2 text-xs font-semibold text-[#7A755D] hover:text-[#222B1F] transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={submittingReview}
+                  className="px-5 py-2 bg-[#315D4F] hover:bg-[#19372E] text-[#F9F6EF] text-xs font-bold rounded-xl shadow-md border border-[#A48B57]/40 disabled:opacity-50"
+                >
+                  {submittingReview ? 'Submitting...' : 'Post Review'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
     </div>
   );

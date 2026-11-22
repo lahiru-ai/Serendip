@@ -121,4 +121,33 @@ public class ReviewService {
                 .orElseThrow(() -> new ResourceNotFoundException(String.format("Buyer with id %d not found.", buyerId)));
         return reviewRepository.findByBuyer(buyer);
     }
+
+    public record ReviewStats(Double averageRating, int reviewCount) {}
+
+    /** Computes average star rating and review count for a specific product. */
+    @Transactional(readOnly = true)
+    public ReviewStats getReviewStats(Long productId) {
+        Double avg = reviewRepository.findAverageRatingByProductId(productId);
+        long count = reviewRepository.countByProductId(productId);
+        Double roundedAvg = avg != null ? Math.round(avg * 10.0) / 10.0 : null;
+        return new ReviewStats(roundedAvg, (int) count);
+    }
+
+    /** Computes review counts and average ratings grouped by product ID in a single query. */
+    @Transactional(readOnly = true)
+    public java.util.Map<Long, ReviewStats> getReviewStatsMap() {
+        java.util.Map<Long, ReviewStats> map = new java.util.HashMap<>();
+        List<Object[]> rows = reviewRepository.findReviewStatsGroupedByProductId();
+        if (rows != null) {
+            for (Object[] row : rows) {
+                if (row != null && row.length >= 3 && row[0] instanceof Long prodId) {
+                    Double avg = row[1] != null ? ((Number) row[1]).doubleValue() : null;
+                    int count = row[2] != null ? ((Number) row[2]).intValue() : 0;
+                    Double roundedAvg = avg != null ? Math.round(avg * 10.0) / 10.0 : null;
+                    map.put(prodId, new ReviewStats(roundedAvg, count));
+                }
+            }
+        }
+        return map;
+    }
 }

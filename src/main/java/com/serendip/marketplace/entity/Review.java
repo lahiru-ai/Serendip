@@ -23,17 +23,17 @@ public class Review {
 
     // Language: Jakarta Persistence (JPA) / Many-to-One Foreign Key
     // Purpose: References reviewing customer via 'buyer_id'.
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "buyer_id", nullable = false)
     private Buyer buyer;
 
     // Language: Jakarta Persistence (JPA) / Many-to-One Foreign Key
     // Purpose: References reviewed product via 'product_id'.
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "order_item_id")
     private OrderItem orderItem;
 

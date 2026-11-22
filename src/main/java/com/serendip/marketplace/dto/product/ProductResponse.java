@@ -17,15 +17,27 @@ public record ProductResponse(
         int stockQuantity,
         Integer weightGrams,
         boolean active,
-        String imageUrl
+        String imageUrl,
+        Double averageRating,
+        Integer reviewCount
 ) {
     public ProductResponse(Long id, Long sellerId, String sellerShopName, String name, String category,
                            String description, BigDecimal priceUsd, BigDecimal priceLkr, String currencyCode,
+                           int stockQuantity, Integer weightGrams, boolean active, String imageUrl) {
+        this(id, sellerId, sellerShopName, name, category, description, priceUsd, priceLkr, currencyCode, stockQuantity, weightGrams, active, imageUrl, null, 0);
+    }
+
+    public ProductResponse(Long id, Long sellerId, String sellerShopName, String name, String category,
+                           String description, BigDecimal priceUsd, BigDecimal priceLkr, String currencyCode,
                            int stockQuantity, Integer weightGrams, boolean active) {
-        this(id, sellerId, sellerShopName, name, category, description, priceUsd, priceLkr, currencyCode, stockQuantity, weightGrams, active, null);
+        this(id, sellerId, sellerShopName, name, category, description, priceUsd, priceLkr, currencyCode, stockQuantity, weightGrams, active, null, null, 0);
     }
 
     public static ProductResponse fromEntity(Product product) {
+        return fromEntity(product, null, 0);
+    }
+
+    public static ProductResponse fromEntity(Product product, Double averageRating, Integer reviewCount) {
         Long sellerId = product.getSeller() != null ? product.getSeller().getId() : null;
         String sellerShopName = product.getSeller() != null ? product.getSeller().getShopName() : null;
 
@@ -42,7 +54,9 @@ public record ProductResponse(
                 product.getStockQuantity(),
                 product.getWeightGrams(),
                 product.isActive(),
-                product.getImageUrl()
+                product.getImageUrl(),
+                averageRating,
+                reviewCount != null ? reviewCount : 0
         );
     }
 }
