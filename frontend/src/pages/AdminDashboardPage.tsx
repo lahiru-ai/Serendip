@@ -238,9 +238,9 @@ export const AdminDashboardPage: React.FC = () => {
             sellerId: so.sellerId,
             sellerName: so.sellerShopName || 'Merchant',
             sellerEmail: so.sellerEmail || '—',
-            productName: item.productName,
+            productName: item.productName || item.productNameAtPurchase || 'Product',
             productQuantity: item.quantity,
-            productPrice: item.unitPrice,
+            productPrice: item.unitPrice ?? item.unitPriceAtPurchase ?? 0,
             orderTotal: o.totalAmount,
             commissionRate: commRate,
             commissionAmount: commAmt,
@@ -759,7 +759,6 @@ export const AdminDashboardPage: React.FC = () => {
                       <th className="py-3 px-3">Seller Email</th>
                       <th className="py-3 px-3">Product Name</th>
                       <th className="py-3 px-3 text-center">Qty</th>
-                      <th className="py-3 px-3 text-right">Unit Price</th>
                       <th className="py-3 px-3 text-right">Order Total</th>
                       <th className="py-3 px-3 text-right text-[#A48B57] bg-[#A48B57]/10">Comm Rate</th>
                       <th className="py-3 px-3 text-right text-[#A48B57] bg-[#A48B57]/10">Comm Amount</th>
@@ -816,7 +815,6 @@ export const AdminDashboardPage: React.FC = () => {
                         </td>
 
                         <td className="py-3 px-3 text-center font-bold text-[#222B1F]">{r.productQuantity}</td>
-                        <td className="py-3 px-3 text-right font-mono text-[#222B1F]">{formatPrice(r.productPrice)}</td>
                         <td className="py-3 px-3 text-right font-mono font-bold text-[#19372E]">{formatPrice(r.orderTotal)}</td>
 
                         {/* Admin Confidential Commission Columns */}
@@ -1347,12 +1345,16 @@ export const AdminDashboardPage: React.FC = () => {
 
                       {/* Items */}
                       <div className="divide-y divide-[#E9E4D7]">
-                        {so.items?.map((item) => (
-                          <div key={item.id} className="py-2 flex items-center justify-between text-xs">
-                            <span className="font-medium">{item.productName} × {item.quantity}</span>
-                            <span className="font-mono font-bold">{formatPrice(item.subtotal)}</span>
-                          </div>
-                        ))}
+                        {so.items?.map((item) => {
+                          const itemName = item.productName || item.productNameAtPurchase || 'Product';
+                          const itemSubtotal = item.subtotal ?? item.lineTotal ?? ((item.unitPrice ?? item.unitPriceAtPurchase ?? 0) * (item.quantity || 1));
+                          return (
+                            <div key={item.id} className="py-2 flex items-center justify-between text-xs">
+                              <span className="font-medium">{itemName} × {item.quantity}</span>
+                              <span className="font-mono font-bold">{formatPrice(itemSubtotal)}</span>
+                            </div>
+                          );
+                        })}
                       </div>
 
                       <div className="pt-2 border-t border-[#D6CBB5]/60 flex justify-between text-xs font-semibold text-[#7A7462]">

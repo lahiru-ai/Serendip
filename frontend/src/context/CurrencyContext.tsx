@@ -4,7 +4,7 @@ import { Currency } from '../types';
 interface CurrencyContextType {
   currency: Currency;
   setCurrency: (c: Currency) => void;
-  formatPrice: (priceUsd: number, priceLkr?: number) => string;
+  formatPrice: (priceUsd?: number | null, priceLkr?: number | null) => string;
 }
 
 const CurrencyContext = createContext<CurrencyContextType | undefined>(undefined);
@@ -26,12 +26,15 @@ export const CurrencyProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     localStorage.setItem('serendip_currency', currency);
   }, [currency]);
 
-  const formatPrice = (priceUsd: number, priceLkr?: number): string => {
+  const formatPrice = (priceUsd?: number | null, priceLkr?: number | null): string => {
+    const numericUsd = Number(priceUsd);
+    const safeUsd = Number.isFinite(numericUsd) ? numericUsd : 0;
     if (currency === 'LKR') {
-      const lkrVal = priceLkr ?? (priceUsd * 300);
+      const numericLkr = (priceLkr !== undefined && priceLkr !== null) ? Number(priceLkr) : NaN;
+      const lkrVal = Number.isFinite(numericLkr) ? numericLkr : (safeUsd * 300);
       return `Rs. ${Number(lkrVal).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     }
-    return `$${Number(priceUsd).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    return `$${Number(safeUsd).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
 
   return (

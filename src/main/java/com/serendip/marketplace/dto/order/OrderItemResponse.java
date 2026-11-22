@@ -1,5 +1,6 @@
 package com.serendip.marketplace.dto.order;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.serendip.marketplace.entity.OrderItem;
 
 import java.math.BigDecimal;
@@ -23,5 +24,20 @@ public record OrderItemResponse(
                 item.getQuantity(),
                 item.getLineTotal()
         );
+    }
+
+    @JsonProperty("productName")
+    public String getProductName() {
+        return productNameAtPurchase;
+    }
+
+    @JsonProperty("unitPrice")
+    public BigDecimal getUnitPrice() {
+        return unitPriceAtPurchase;
+    }
+
+    @JsonProperty("subtotal")
+    public BigDecimal getSubtotal() {
+        return lineTotal;
     }
 }

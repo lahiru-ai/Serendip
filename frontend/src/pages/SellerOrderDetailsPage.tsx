@@ -206,22 +206,28 @@ export const SellerOrderDetailsPage: React.FC = () => {
           <div className="bg-white rounded-3xl border border-zinc-200/80 p-6 shadow-sm space-y-4">
             <h3 className="font-semibold text-zinc-900 text-sm">Ordered Products</h3>
             <div className="divide-y divide-zinc-100 text-xs">
-              {order.items?.map((item) => (
-                <div key={item.id} className="py-3 flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-xl bg-zinc-100 border border-zinc-200 flex items-center justify-center shrink-0">
-                      <Package className="w-4 h-4 text-zinc-500" />
+              {order.items?.map((item) => {
+                const itemName = item.productName || item.productNameAtPurchase || 'Ceylon Commodity';
+                const itemUnitPrice = item.unitPrice ?? item.unitPriceAtPurchase ?? 0;
+                const itemSubtotal = item.subtotal ?? item.lineTotal ?? (itemUnitPrice * (item.quantity || 1));
+
+                return (
+                  <div key={item.id} className="py-3 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-xl bg-zinc-100 border border-zinc-200 flex items-center justify-center shrink-0">
+                        <Package className="w-4 h-4 text-zinc-500" />
+                      </div>
+                      <div>
+                        <span className="font-semibold text-zinc-900 block">{itemName}</span>
+                        <span className="text-zinc-400 text-[11px]">
+                          {item.quantity} units × {formatPrice(itemUnitPrice)}
+                        </span>
+                      </div>
                     </div>
-                    <div>
-                      <span className="font-semibold text-zinc-900 block">{item.productName}</span>
-                      <span className="text-zinc-400 text-[11px]">
-                        {item.quantity} units × {formatPrice(item.unitPrice)}
-                      </span>
-                    </div>
+                    <span className="font-bold text-zinc-900">{formatPrice(itemSubtotal)}</span>
                   </div>
-                  <span className="font-bold text-zinc-900">{formatPrice(item.subtotal)}</span>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
             <div className="pt-3 border-t border-zinc-100 flex justify-between items-center text-xs">

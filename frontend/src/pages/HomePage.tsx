@@ -238,7 +238,7 @@ export const HomePage: React.FC = () => {
                   {/* Primary Large Image: Sigiriya & Tropical Ceylon Highlands */}
                   <div className="col-span-8 relative aspect-[4/5] rounded-2xl overflow-hidden border border-[#D6CBB5]/80 group">
                     <img
-                      src="https://images.unsplash.com/photo-1586861635167-e5223aadc9fe?auto=format&fit=crop&w=900&q=80"
+                      src="https://d3benx6w5yjcsf.cloudfront.net/media/Z_OnH3dAxsiBwY3N_11084796895_3a36fc887a_b.jpg"
                       alt="Sigiriya Rock Fortress and Sri Lankan Central Highlands"
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
                     />

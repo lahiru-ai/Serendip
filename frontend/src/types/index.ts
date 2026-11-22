@@ -101,9 +101,12 @@ export interface OrderItem {
   id: number;
   productId: number;
   productName: string;
+  productNameAtPurchase?: string;
   quantity: number;
   unitPrice: number;
+  unitPriceAtPurchase?: number;
   subtotal: number;
+  lineTotal?: number;
 }
 
 export interface OrderStatusHistory {

@@ -141,7 +141,7 @@ export const OrderHistoryPage: React.FC = () => {
         setReviewedProductIds((prev) => new Set(prev).add(reviewingTarget.item.productId));
       }
 
-      setSuccessMsg(`Thank you! Your verified review for "${reviewingTarget.item.productName}" has been published.`);
+      setSuccessMsg(`Thank you! Your verified review for "${reviewingTarget.item.productName || reviewingTarget.item.productNameAtPurchase || 'the product'}" has been published.`);
       setReviewingTarget(null);
       setReviewComment('');
       setReviewRating(5);
@@ -309,6 +309,9 @@ export const OrderHistoryPage: React.FC = () => {
                       {subOrder.items?.map((item) => {
                         const delivered = isDelivered(order.status, subOrder.status);
                         const reviewed = isItemReviewed(item);
+                        const itemName = item.productName || item.productNameAtPurchase || 'Ceylon Commodity';
+                        const itemUnitPrice = item.unitPrice ?? item.unitPriceAtPurchase ?? 0;
+                        const itemSubtotal = item.subtotal ?? item.lineTotal ?? (itemUnitPrice * (item.quantity || 1));
 
                         return (
                           <div key={item.id} className="py-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-zinc-600 text-xs">
@@ -318,17 +321,17 @@ export const OrderHistoryPage: React.FC = () => {
                                   to={`/products/${item.productId}`}
                                   className="font-medium text-zinc-900 hover:text-serendip-600 hover:underline transition-colors"
                                 >
-                                  {item.productName}
+                                  {itemName}
                                 </Link>
                                 <span className="text-zinc-400">× {item.quantity}</span>
                               </div>
                               <span className="text-[11px] text-zinc-400">
-                                Unit: {formatPrice(item.unitPrice)}
+                                Unit: {formatPrice(itemUnitPrice)}
                               </span>
                             </div>
 
                             <div className="flex items-center gap-3 self-end sm:self-auto">
-                              <span className="font-semibold text-zinc-900">{formatPrice(item.subtotal)}</span>
+                              <span className="font-semibold text-zinc-900">{formatPrice(itemSubtotal)}</span>
 
                               {/* Review Action based on delivery status */}
                               {delivered ? (
@@ -382,7 +385,7 @@ export const OrderHistoryPage: React.FC = () => {
                   Review Product
                 </h3>
                 <p className="text-xs text-zinc-600 mt-1">
-                  <strong className="text-zinc-900">{reviewingTarget.item.productName}</strong>
+                  <strong className="text-zinc-900">{reviewingTarget.item.productName || reviewingTarget.item.productNameAtPurchase || 'Ceylon Commodity'}</strong>
                 </p>
                 <p className="text-[11px] text-zinc-400 mt-0.5">
                   Fulfilled by {reviewingTarget.subOrder.sellerShopName || 'Ceylon Merchant'} • Order #{reviewingTarget.order.orderNumber}
