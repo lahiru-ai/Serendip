@@ -29,12 +29,12 @@ public record ProductCreateRequest(
 
         String imageUrl
 ) {
-    public int effectiveWeightGrams() {
-        return (weightGrams != null && weightGrams > 0) ? weightGrams : 100;
+    public Integer effectiveWeightGrams() {
+        return (weightGrams != null && weightGrams > 0) ? weightGrams : null;
     }
 
     public ProductCreateRequest(Long sellerId, String name, String category, String description, BigDecimal priceUsd, int stockQuantity) {
-        this(sellerId, name, category, description, priceUsd, stockQuantity, 100, null);
+        this(sellerId, name, category, description, priceUsd, stockQuantity, null, null);
     }
 
     public ProductCreateRequest(Long sellerId, String name, String category, String description, BigDecimal priceUsd, int stockQuantity, Integer weightGrams) {

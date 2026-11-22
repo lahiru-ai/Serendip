@@ -44,7 +44,7 @@ export const SellerDashboardPage: React.FC = () => {
   const [description, setDescription] = useState('');
   const [priceVal, setPriceVal] = useState('');
   const [stockQuantity, setStockQuantity] = useState('25');
-  const [weightGrams, setWeightGrams] = useState('100');
+  const [weightGrams, setWeightGrams] = useState('');
   const [imageUrl, setImageUrl] = useState('');
   const [imagePreview, setImagePreview] = useState<string | null>(null);
 
@@ -63,7 +63,7 @@ export const SellerDashboardPage: React.FC = () => {
   const [editCurrencyMode, setEditCurrencyMode] = useState<'USD' | 'LKR'>('LKR');
   const [editPriceVal, setEditPriceVal] = useState('');
   const [editStockQuantity, setEditStockQuantity] = useState('25');
-  const [editWeightGrams, setEditWeightGrams] = useState('100');
+  const [editWeightGrams, setEditWeightGrams] = useState('');
   const [editActive, setEditActive] = useState(true);
   const [editImageUrl, setEditImageUrl] = useState('');
   const [editProductImagePreview, setEditProductImagePreview] = useState<string | null>(null);
@@ -151,7 +151,7 @@ export const SellerDashboardPage: React.FC = () => {
           description,
           priceLkr: parseFloat(priceVal),
           stockQuantity: parseInt(stockQuantity, 10),
-          weightGrams: parseInt(weightGrams, 10) || 100,
+          weightGrams: weightGrams.trim() && parseInt(weightGrams, 10) > 0 ? parseInt(weightGrams, 10) : undefined,
           imageUrl: imageUrl.trim() || undefined,
         });
       } else {
@@ -162,7 +162,7 @@ export const SellerDashboardPage: React.FC = () => {
           description,
           priceUsd: parseFloat(priceVal),
           stockQuantity: parseInt(stockQuantity, 10),
-          weightGrams: parseInt(weightGrams, 10) || 100,
+          weightGrams: weightGrams.trim() && parseInt(weightGrams, 10) > 0 ? parseInt(weightGrams, 10) : undefined,
           imageUrl: imageUrl.trim() || undefined,
         });
       }
@@ -172,6 +172,7 @@ export const SellerDashboardPage: React.FC = () => {
       setName('');
       setDescription('');
       setPriceVal('');
+      setWeightGrams('');
       setImageUrl('');
       setImagePreview(null);
       setIsCustomCategory(false);
@@ -207,7 +208,7 @@ export const SellerDashboardPage: React.FC = () => {
     setEditCurrencyMode('LKR');
     setEditPriceVal(p.priceLkr ? p.priceLkr.toString() : (p.priceUsd * 300).toFixed(2));
     setEditStockQuantity(p.stockQuantity.toString());
-    setEditWeightGrams((p.weightGrams || 100).toString());
+    setEditWeightGrams(p.weightGrams ? p.weightGrams.toString() : '');
     setEditActive(p.active);
     setEditImageUrl(p.imageUrl || '');
     setEditProductImagePreview(p.imageUrl || null);
@@ -254,7 +255,7 @@ export const SellerDashboardPage: React.FC = () => {
         category: string;
         description: string;
         stockQuantity: number;
-        weightGrams: number;
+        weightGrams?: number;
         active: boolean;
         imageUrl?: string;
         priceLkr?: number;
@@ -264,7 +265,7 @@ export const SellerDashboardPage: React.FC = () => {
         category: finalCategory,
         description: editDescription.trim(),
         stockQuantity: parseInt(editStockQuantity, 10),
-        weightGrams: parseInt(editWeightGrams, 10) || 100,
+        weightGrams: editWeightGrams.trim() && parseInt(editWeightGrams, 10) > 0 ? parseInt(editWeightGrams, 10) : 0,
         active: editActive,
         imageUrl: editImageUrl.trim() || undefined,
       };
@@ -750,13 +751,13 @@ export const SellerDashboardPage: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block font-semibold text-[#222B1F] mb-1">Weight (Grams)</label>
+                  <label className="block font-semibold text-[#222B1F] mb-1">Weight in Grams (Optional)</label>
                   <input
                     type="number"
                     min="1"
                     value={weightGrams}
                     onChange={(e) => setWeightGrams(e.target.value)}
-                    placeholder="100"
+                    placeholder="e.g. 250 (optional)"
                     className="w-full px-3 py-2 bg-[#F9F6EF] text-[#222B1F] border border-[#D6CBB5] rounded-xl focus:outline-none focus:border-[#315D4F]"
                   />
                 </div>
@@ -1119,12 +1120,13 @@ export const SellerDashboardPage: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block font-semibold text-[#222B1F] mb-1">Weight (Grams)</label>
+                  <label className="block font-semibold text-[#222B1F] mb-1">Weight in Grams (Optional)</label>
                   <input
                     type="number"
                     min="1"
                     value={editWeightGrams}
                     onChange={(e) => setEditWeightGrams(e.target.value)}
+                    placeholder="e.g. 250 (optional)"
                     className="w-full px-3 py-2 bg-[#F9F6EF] text-[#222B1F] border border-[#D6CBB5] rounded-xl focus:outline-none focus:border-[#315D4F]"
                   />
                 </div>

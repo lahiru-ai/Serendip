@@ -50,7 +50,7 @@ public class Product {
     private int stockQuantity;
 
     @Column(name = "weight_grams")
-    private int weightGrams = 100;
+    private Integer weightGrams;
 
     @Column(name = "image_url", columnDefinition = "TEXT")
     private String imageUrl;
@@ -68,16 +68,16 @@ public class Product {
     }
 
     public Product(String name, BigDecimal price, int stockQuantity, Seller seller) {
-        this(name, "General", "", price, "USD", stockQuantity, seller, 100);
+        this(name, "General", "", price, "USD", stockQuantity, seller, null);
     }
 
-    public Product(String name, String category, BigDecimal price, int stockQuantity, Seller seller, int weightGrams) {
+    public Product(String name, String category, BigDecimal price, int stockQuantity, Seller seller, Integer weightGrams) {
         this(name, category, "", price, "USD", stockQuantity, seller, weightGrams);
     }
 
     @SuppressWarnings("this-escape")
     public Product(String name, String category, String description, BigDecimal inputPrice,
-                   String currencyCode, int stockQuantity, Seller seller, int weightGrams) {
+                   String currencyCode, int stockQuantity, Seller seller, Integer weightGrams) {
         setName(name);
         this.category = category != null && !category.isBlank() ? category.trim() : "General";
         this.description = description != null ? description.trim() : "";
@@ -91,13 +91,13 @@ public class Product {
 
         setStockQuantity(stockQuantity);
         this.seller = Objects.requireNonNull(seller, "Product must belong to a verified seller.");
-        this.weightGrams = weightGrams > 0 ? weightGrams : 100;
+        setWeightGrams(weightGrams);
         this.active = stockQuantity > 0;
     }
 
     /** Creates a product with price specified in LKR, calculating USD price automatically. */
     public static Product createInLkr(String name, String category, String description,
-                                      BigDecimal priceInLkr, int stockQuantity, Seller seller, int weightGrams) {
+                                      BigDecimal priceInLkr, int stockQuantity, Seller seller, Integer weightGrams) {
         return new Product(name, category, description, priceInLkr, "LKR", stockQuantity, seller, weightGrams);
     }
 
@@ -256,12 +256,12 @@ public class Product {
         this.active = quantity > 0;
     }
 
-    public int getWeightGrams() {
+    public Integer getWeightGrams() {
         return weightGrams;
     }
 
-    public void setWeightGrams(int weightGrams) {
-        if (weightGrams <= 0) {
+    public void setWeightGrams(Integer weightGrams) {
+        if (weightGrams != null && weightGrams <= 0) {
             throw new IllegalArgumentException("Weight must be greater than zero.");
         }
         this.weightGrams = weightGrams;

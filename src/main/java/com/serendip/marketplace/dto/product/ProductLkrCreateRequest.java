@@ -29,12 +29,12 @@ public record ProductLkrCreateRequest(
 
         String imageUrl
 ) {
-    public int effectiveWeightGrams() {
-        return (weightGrams != null && weightGrams > 0) ? weightGrams : 100;
+    public Integer effectiveWeightGrams() {
+        return (weightGrams != null && weightGrams > 0) ? weightGrams : null;
     }
 
     public ProductLkrCreateRequest(Long sellerId, String name, String category, String description, BigDecimal priceLkr, int stockQuantity) {
-        this(sellerId, name, category, description, priceLkr, stockQuantity, 100, null);
+        this(sellerId, name, category, description, priceLkr, stockQuantity, null, null);
     }
 
     public ProductLkrCreateRequest(Long sellerId, String name, String category, String description, BigDecimal priceLkr, int stockQuantity, Integer weightGrams) {

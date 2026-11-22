@@ -32,7 +32,7 @@ public record ProductUpdateRequest(
 
         Boolean active
 ) {
-    public int effectiveWeightGrams() {
-        return (weightGrams != null && weightGrams > 0) ? weightGrams : 100;
+    public Integer effectiveWeightGrams() {
+        return (weightGrams != null && weightGrams > 0) ? weightGrams : null;
     }
 }

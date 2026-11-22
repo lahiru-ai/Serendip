@@ -15,13 +15,13 @@ public record ProductResponse(
         BigDecimal priceLkr,
         String currencyCode,
         int stockQuantity,
-        int weightGrams,
+        Integer weightGrams,
         boolean active,
         String imageUrl
 ) {
     public ProductResponse(Long id, Long sellerId, String sellerShopName, String name, String category,
                            String description, BigDecimal priceUsd, BigDecimal priceLkr, String currencyCode,
-                           int stockQuantity, int weightGrams, boolean active) {
+                           int stockQuantity, Integer weightGrams, boolean active) {
         this(id, sellerId, sellerShopName, name, category, description, priceUsd, priceLkr, currencyCode, stockQuantity, weightGrams, active, null);
     }
 

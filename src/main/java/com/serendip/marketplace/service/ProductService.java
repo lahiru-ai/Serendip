@@ -34,13 +34,13 @@ public class ProductService {
 
     /** Adds a new product to a seller's catalog with price in USD. */
     public Product addProduct(Long sellerId, String name, String category, String description,
-                              BigDecimal priceUsd, int stockQuantity, int weightGrams) {
+                              BigDecimal priceUsd, int stockQuantity, Integer weightGrams) {
         return addProduct(sellerId, name, category, description, priceUsd, stockQuantity, weightGrams, null);
     }
 
     /** Adds a new product to a seller's catalog with price in USD and product image. */
     public Product addProduct(Long sellerId, String name, String category, String description,
-                              BigDecimal priceUsd, int stockQuantity, int weightGrams, String imageUrl) {
+                              BigDecimal priceUsd, int stockQuantity, Integer weightGrams, String imageUrl) {
         SecurityUtils.requireOwnershipOrAdmin(sellerId, "seller catalog");
         Seller seller = sellerRepository.findById(sellerId)
                 .orElseThrow(() -> new ResourceNotFoundException(String.format("Seller with id %d not found.", sellerId)));
@@ -56,13 +56,13 @@ public class ProductService {
 
     /** Adds a new product to a seller's catalog with price specified in LKR. */
     public Product addProductInLkr(Long sellerId, String name, String category, String description,
-                                 BigDecimal priceLkr, int stockQuantity, int weightGrams) {
+                                 BigDecimal priceLkr, int stockQuantity, Integer weightGrams) {
         return addProductInLkr(sellerId, name, category, description, priceLkr, stockQuantity, weightGrams, null);
     }
 
     /** Adds a new product to a seller's catalog with price specified in LKR and product image. */
     public Product addProductInLkr(Long sellerId, String name, String category, String description,
-                                 BigDecimal priceLkr, int stockQuantity, int weightGrams, String imageUrl) {
+                                 BigDecimal priceLkr, int stockQuantity, Integer weightGrams, String imageUrl) {
         SecurityUtils.requireOwnershipOrAdmin(sellerId, "seller catalog");
         Seller seller = sellerRepository.findById(sellerId)
                 .orElseThrow(() -> new ResourceNotFoundException(String.format("Seller with id %d not found.", sellerId)));
@@ -140,8 +140,8 @@ public class ProductService {
         if (request.stockQuantity() != null) {
             product.setStockQuantity(request.stockQuantity());
         }
-        if (request.weightGrams() != null && request.weightGrams() > 0) {
-            product.setWeightGrams(request.weightGrams());
+        if (request.weightGrams() != null) {
+            product.setWeightGrams(request.weightGrams() > 0 ? request.weightGrams() : null);
         }
         if (request.imageUrl() != null) {
             product.setImageUrl(request.imageUrl().isBlank() ? null : request.imageUrl().trim());
