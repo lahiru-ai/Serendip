@@ -66,8 +66,6 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, badge }) => {
 
   // Deriving rating and badge based on product attributes
   const displayBadge = badge || (product.id === 1 ? 'Featured' : product.id === 3 ? 'Bestseller' : product.id === 2 ? 'Heritage' : 'New');
-  const ratingValue = 4.9;
-  const reviewCount = (product.id * 7) % 23 + 12;
 
   const handleWishlistToggle = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -171,15 +169,22 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, badge }) => {
           </Link>
 
           {/* Rating */}
-          <div className="flex items-center gap-1.5 pt-0.5">
-            <div className="flex items-center text-[#A48B57]">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <Star key={i} className="w-3 h-3 fill-[#A48B57]" />
-              ))}
+          {product.reviewCount && product.reviewCount > 0 ? (
+            <div className="flex items-center gap-1.5 pt-0.5">
+              <div className="flex items-center text-[#A48B57]">
+                <Star className="w-3 h-3 fill-[#A48B57]" />
+              </div>
+              <span className="text-[11px] font-bold text-[#222B1F]">
+                {product.averageRating ? product.averageRating.toFixed(1) : '5.0'}
+              </span>
+              <span className="text-[11px] text-[#ADA78A]">({product.reviewCount})</span>
             </div>
-            <span className="text-[11px] font-bold text-[#222B1F]">{ratingValue}</span>
-            <span className="text-[11px] text-[#ADA78A]">({reviewCount})</span>
-          </div>
+          ) : (
+            <div className="flex items-center gap-1.5 pt-0.5 text-[#ADA78A]">
+              <Star className="w-3 h-3 text-[#D6CBB5]" />
+              <span className="text-[11px] text-[#7A755D]">No reviews yet</span>
+            </div>
+          )}
         </div>
 
         {/* Pricing and Cart Action */}

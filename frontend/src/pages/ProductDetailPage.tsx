@@ -152,9 +152,10 @@ export const ProductDetailPage: React.FC = () => {
   }
 
   const imageUrl = getItemImage(product);
-  const averageRating = reviews.length > 0 
+  const hasReviews = reviews.length > 0;
+  const averageRating = hasReviews 
     ? (reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length).toFixed(1) 
-    : '4.9';
+    : null;
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 space-y-12">
@@ -198,11 +199,18 @@ export const ProductDetailPage: React.FC = () => {
             <div className="flex items-center gap-2 text-xs text-[#7A755D] mb-1.5">
               <span className="font-semibold text-[#315D4F]">{product.sellerShopName || 'Ceylon Heritage Guild'}</span>
               <span>•</span>
-              <div className="flex items-center gap-1 text-[#A48B57]">
-                <Star className="w-4 h-4 fill-[#A48B57]" />
-                <span className="font-bold text-[#222B1F]">{averageRating}</span>
-                <span className="text-[#ADA78A]">({reviews.length || 18} reviews)</span>
-              </div>
+              {hasReviews ? (
+                <div className="flex items-center gap-1 text-[#A48B57]">
+                  <Star className="w-4 h-4 fill-[#A48B57]" />
+                  <span className="font-bold text-[#222B1F]">{averageRating}</span>
+                  <span className="text-[#ADA78A]">({reviews.length} {reviews.length === 1 ? 'review' : 'reviews'})</span>
+                </div>
+              ) : (
+                <div className="flex items-center gap-1 text-[#ADA78A]">
+                  <Star className="w-3.5 h-3.5 text-[#D6CBB5]" />
+                  <span className="text-xs text-[#7A755D]">No reviews yet</span>
+                </div>
+              )}
             </div>
 
             <h1 className="font-serif text-3xl sm:text-4xl font-bold text-[#222B1F] tracking-tight leading-tight">

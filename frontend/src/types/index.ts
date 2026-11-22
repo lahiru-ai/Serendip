@@ -60,6 +60,8 @@ export interface Product {
   weightGrams?: number;
   active: boolean;
   imageUrl?: string;
+  averageRating?: number | null;
+  reviewCount?: number;
 }
 
 export interface Review {
