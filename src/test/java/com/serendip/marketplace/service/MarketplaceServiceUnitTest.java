@@ -1,5 +1,6 @@
 package com.serendip.marketplace.service;
 
+import com.serendip.marketplace.dto.product.ProductUpdateRequest;
 import com.serendip.marketplace.entity.*;
 import com.serendip.marketplace.exception.InvalidRatingException;
 import com.serendip.marketplace.exception.ResourceNotFoundException;
@@ -79,6 +80,44 @@ class MarketplaceServiceUnitTest {
         assertThat(product.getName()).isEqualTo("Handmade Rug");
         assertThat(product.getSeller()).isEqualTo(seller);
         verify(productRepository).save(any(Product.class));
+    }
+
+    @Test
+    @DisplayName("ProductService: updates existing product details and category")
+    void testUpdateProduct() {
+        Seller seller = new Seller("Seller One", "s1@mail.com", "pass", "Colombo Craft");
+        seller.setId(1L);
+        Product product = new Product("Original Name", "Tea", new BigDecimal("10.00"), 5, seller, 100);
+        product.setId(200L);
+
+        when(productRepository.findByIdWithSeller(200L)).thenReturn(Optional.of(product));
+        when(productRepository.save(any(Product.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        ProductUpdateRequest updateRequest = new ProductUpdateRequest(
+                "Updated Name", "Custom Category", "Detailed description",
+                new BigDecimal("20.00"), null, 10, 250, "https://example.com/item.png", true
+        );
+
+        Product updated = productService.updateProduct(200L, updateRequest);
+
+        assertThat(updated.getName()).isEqualTo("Updated Name");
+        assertThat(updated.getCategory()).isEqualTo("Custom Category");
+        assertThat(updated.getDescription()).isEqualTo("Detailed description");
+        assertThat(updated.getPrice()).isEqualByComparingTo(new BigDecimal("20.00"));
+        assertThat(updated.getStockQuantity()).isEqualTo(10);
+        assertThat(updated.getWeightGrams()).isEqualTo(250);
+        assertThat(updated.getImageUrl()).isEqualTo("https://example.com/item.png");
+        verify(productRepository).save(product);
+    }
+
+    @Test
+    @DisplayName("ProductService: getAllCategories returns merged distinct categories")
+    void testGetAllCategories() {
+        when(productRepository.findDistinctCategories()).thenReturn(java.util.List.of("Ayurveda", "Tea", "Batik"));
+
+        java.util.List<String> categories = productService.getAllCategories();
+
+        assertThat(categories).contains("Tea", "Gems", "Spices", "Crafts", "Apparel", "Ayurveda", "Batik");
     }
 
     @Test

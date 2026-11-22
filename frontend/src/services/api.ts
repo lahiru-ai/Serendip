@@ -116,6 +116,11 @@ class ApiService {
     return this.request<Product[]>(`/products${qs ? `?${qs}` : ''}`);
   }
 
+  /** Fetches all distinct categories available across products. */
+  async getCategories(): Promise<string[]> {
+    return this.request<string[]>('/products/categories');
+  }
+
   /** Fetches a single product by ID. */
   async getProductById(id: number): Promise<Product> {
     return this.request<Product>(`/products/${id}`);
@@ -151,6 +156,24 @@ class ApiService {
   }): Promise<Product> {
     return this.request<Product>('/products/lkr', {
       method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  /** Updates an existing product's catalog details. */
+  async updateProduct(id: number, data: {
+    name: string;
+    category?: string;
+    description?: string;
+    priceUsd?: number;
+    priceLkr?: number;
+    stockQuantity?: number;
+    weightGrams?: number;
+    imageUrl?: string;
+    active?: boolean;
+  }): Promise<Product> {
+    return this.request<Product>(`/products/${id}`, {
+      method: 'PUT',
       body: JSON.stringify(data),
     });
   }

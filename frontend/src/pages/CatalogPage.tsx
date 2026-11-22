@@ -15,6 +15,7 @@ export const CatalogPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const [allProducts, setAllProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<string[]>(AVAILABLE_CATEGORIES);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -54,6 +55,13 @@ export const CatalogPage: React.FC = () => {
 
   useEffect(() => {
     fetchProducts();
+    api.getCategories()
+      .then((cats) => {
+        if (cats && cats.length > 0) {
+          setCategories(cats);
+        }
+      })
+      .catch((err) => console.warn('Could not fetch categories:', err));
   }, []);
 
   // Update URL search parameters when filters change
@@ -142,7 +150,7 @@ export const CatalogPage: React.FC = () => {
           <ProductFilters
             filters={filters}
             onChange={handleFiltersChange}
-            categories={AVAILABLE_CATEGORIES}
+            categories={categories}
             totalResults={filteredProducts.length}
           />
         </div>

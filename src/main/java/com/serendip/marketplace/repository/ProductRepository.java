@@ -32,4 +32,9 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     // Purpose: Finds a single product by its ID and eagerly joins its seller, returning an Optional product with full seller information.
     @Query("SELECT p FROM Product p JOIN FETCH p.seller WHERE p.id = :id")
     Optional<Product> findByIdWithSeller(@Param("id") Long id);
+
+    // Language: JPQL (Java Persistence Query Language)
+    // Purpose: Retrieves all distinct categories assigned to products.
+    @Query("SELECT DISTINCT p.category FROM Product p WHERE p.category IS NOT NULL")
+    List<String> findDistinctCategories();
 }

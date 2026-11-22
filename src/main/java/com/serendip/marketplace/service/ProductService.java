@@ -1,5 +1,6 @@
 package com.serendip.marketplace.service;
 
+import com.serendip.marketplace.dto.product.ProductUpdateRequest;
 import com.serendip.marketplace.entity.Product;
 import com.serendip.marketplace.entity.Seller;
 import com.serendip.marketplace.exception.ResourceNotFoundException;
@@ -10,8 +11,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * Service managing product catalog, seller listings, and stock updates.
@@ -95,6 +99,58 @@ public class ProductService {
     @Transactional(readOnly = true)
     public List<Product> getProductsByCategory(String category) {
         return productRepository.findByCategory(category);
+    }
+
+    /** Retrieves all available product categories in the marketplace catalog. */
+    @Transactional(readOnly = true)
+    public List<String> getAllCategories() {
+        List<String> dbCategories = productRepository.findDistinctCategories();
+        Set<String> categories = new LinkedHashSet<>(
+                List.of("Tea", "Gems", "Spices", "Crafts", "Apparel")
+        );
+        if (dbCategories != null) {
+            for (String cat : dbCategories) {
+                if (cat != null && !cat.isBlank()) {
+                    categories.add(cat.trim());
+                }
+            }
+        }
+        return new ArrayList<>(categories);
+    }
+
+    /** Updates details of an existing product. */
+    public Product updateProduct(Long productId, ProductUpdateRequest request) {
+        Product product = getProductById(productId);
+        checkProductOwnership(product);
+
+        if (request.name() != null && !request.name().isBlank()) {
+            product.setName(request.name());
+        }
+        if (request.category() != null && !request.category().isBlank()) {
+            product.setCategory(request.category().trim());
+        }
+        if (request.description() != null) {
+            product.setDescription(request.description().trim());
+        }
+        if (request.priceLkr() != null) {
+            product.setPriceInLkr(request.priceLkr());
+        } else if (request.priceUsd() != null) {
+            product.setPrice(request.priceUsd());
+        }
+        if (request.stockQuantity() != null) {
+            product.setStockQuantity(request.stockQuantity());
+        }
+        if (request.weightGrams() != null && request.weightGrams() > 0) {
+            product.setWeightGrams(request.weightGrams());
+        }
+        if (request.imageUrl() != null) {
+            product.setImageUrl(request.imageUrl().isBlank() ? null : request.imageUrl().trim());
+        }
+        if (request.active() != null) {
+            product.setActive(request.active());
+        }
+
+        return productRepository.save(product);
     }
 
     /** Updates the price of an existing product. */

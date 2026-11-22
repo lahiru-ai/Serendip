@@ -5,6 +5,7 @@ import com.serendip.marketplace.dto.product.ProductCreateRequest;
 import com.serendip.marketplace.dto.product.ProductLkrCreateRequest;
 import com.serendip.marketplace.dto.product.ProductPriceUpdateRequest;
 import com.serendip.marketplace.dto.product.ProductStockReplenishRequest;
+import com.serendip.marketplace.dto.product.ProductUpdateRequest;
 import com.serendip.marketplace.entity.Product;
 import com.serendip.marketplace.entity.Seller;
 import com.serendip.marketplace.exception.GlobalExceptionHandler;
@@ -188,5 +189,41 @@ class ProductControllerTest {
         mockMvc.perform(put("/api/v1/products/101/activate"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.active").value(true));
+    }
+
+    @Test
+    @DisplayName("GET /api/v1/products/categories - retrieves available categories")
+    void getCategories() throws Exception {
+        when(productService.getAllCategories()).thenReturn(List.of("Tea", "Gems", "Spices", "Crafts", "Apparel", "Ayurveda"));
+
+        mockMvc.perform(get("/api/v1/products/categories"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0]").value("Tea"))
+                .andExpect(jsonPath("$[5]").value("Ayurveda"));
+    }
+
+    @Test
+    @DisplayName("PUT /api/v1/products/{id} - updates existing product details")
+    void updateProduct() throws Exception {
+        Seller seller = new Seller("Seller A", "s@mail.com", "p", "Tea Co");
+        seller.setId(1L);
+        Product p = new Product("Updated Tea", "Tea", new BigDecimal("18.00"), 50, seller, 200);
+        p.setId(101L);
+
+        when(productService.updateProduct(eq(101L), any(ProductUpdateRequest.class))).thenReturn(p);
+
+        ProductUpdateRequest request = new ProductUpdateRequest(
+                "Updated Tea", "Tea", "New description",
+                new BigDecimal("18.00"), null, 50, 200, "https://example.com/tea.jpg", true
+        );
+
+        mockMvc.perform(put("/api/v1/products/101")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(101))
+                .andExpect(jsonPath("$.name").value("Updated Tea"))
+                .andExpect(jsonPath("$.priceUsd").value(18.00))
+                .andExpect(jsonPath("$.stockQuantity").value(50));
     }
 }

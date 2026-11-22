@@ -48,6 +48,12 @@ public class ProductController {
         return ResponseEntity.ok(responses);
     }
 
+    /** Retrieves all available product categories in the catalog. */
+    @GetMapping("/categories")
+    public ResponseEntity<List<String>> getAllCategories() {
+        return ResponseEntity.ok(productService.getAllCategories());
+    }
+
     /** Retrieves details for a specific product by ID. */
     @GetMapping("/{id}")
     public ResponseEntity<ProductResponse> getProductById(@PathVariable Long id) {
@@ -111,6 +117,15 @@ public class ProductController {
             );
         }
         return ResponseEntity.status(HttpStatus.CREATED).body(ProductResponse.fromEntity(product));
+    }
+
+    /** Updates an existing product's catalog details. */
+    @PutMapping("/{id}")
+    public ResponseEntity<ProductResponse> updateProduct(
+            @PathVariable Long id,
+            @Valid @RequestBody ProductUpdateRequest request) {
+        Product product = productService.updateProduct(id, request);
+        return ResponseEntity.ok(ProductResponse.fromEntity(product));
     }
 
     /** Updates the image of an existing product (Base64 data URI or image URL) directly on the database. */

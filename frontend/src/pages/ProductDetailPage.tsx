@@ -62,7 +62,7 @@ export const ProductDetailPage: React.FC = () => {
 
   const { formatPrice } = useCurrency();
   const { addToCart, isLoading: cartLoading } = useCart();
-  const { isAuthenticated, role } = useAuth();
+  const { isAuthenticated, role, user } = useAuth();
 
   const [product, setProduct] = useState<Product | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
@@ -289,6 +289,18 @@ export const ProductDetailPage: React.FC = () => {
                 )}
               </button>
             </div>
+
+            {user?.role === 'SELLER' && user?.id === product.sellerId && (
+              <div className="p-3 bg-[#E9E4D7] border border-[#A48B57] rounded-xl flex items-center justify-between">
+                <span className="text-xs text-[#315D4F] font-semibold">You are the seller of this artifact</span>
+                <Link
+                  to="/seller"
+                  className="px-3 py-1.5 bg-[#315D4F] hover:bg-[#19372E] text-[#F9F6EF] text-xs font-bold rounded-lg transition-colors flex items-center gap-1.5"
+                >
+                  Edit in Merchant Suite &rarr;
+                </Link>
+              </div>
+            )}
 
             {actionError && (
               <div className="p-3 bg-rose-50 text-rose-800 text-xs rounded-xl flex items-center gap-2 border border-rose-200">

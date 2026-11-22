@@ -11,7 +11,8 @@ import {
   Image as ImageIcon, 
   X, 
   Sparkles,
-  Camera
+  Camera,
+  Pencil
 } from 'lucide-react';
 import { Product } from '../types';
 import { api } from '../services/api';
@@ -28,6 +29,13 @@ export const SellerDashboardPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Categories state
+  const [availableCategories, setAvailableCategories] = useState<string[]>([
+    'Tea', 'Gems', 'Spices', 'Crafts', 'Apparel'
+  ]);
+  const [isCustomCategory, setIsCustomCategory] = useState(false);
+  const [customCategory, setCustomCategory] = useState('');
+
   // Modal / Add Product Form state
   const [showAddModal, setShowAddModal] = useState(false);
   const [currencyMode, setCurrencyMode] = useState<'USD' | 'LKR'>('LKR');
@@ -36,6 +44,7 @@ export const SellerDashboardPage: React.FC = () => {
   const [description, setDescription] = useState('');
   const [priceVal, setPriceVal] = useState('');
   const [stockQuantity, setStockQuantity] = useState('25');
+  const [weightGrams, setWeightGrams] = useState('100');
   const [imageUrl, setImageUrl] = useState('');
   const [imagePreview, setImagePreview] = useState<string | null>(null);
 
@@ -44,11 +53,39 @@ export const SellerDashboardPage: React.FC = () => {
   const [editImagePreview, setEditImagePreview] = useState<string | null>(null);
   const [uploadingImage, setUploadingImage] = useState(false);
 
+  // Edit Existing Product Modal state
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [editName, setEditName] = useState('');
+  const [editCategory, setEditCategory] = useState('Tea');
+  const [isEditCustomCategory, setIsEditCustomCategory] = useState(false);
+  const [editCustomCategory, setEditCustomCategory] = useState('');
+  const [editDescription, setEditDescription] = useState('');
+  const [editCurrencyMode, setEditCurrencyMode] = useState<'USD' | 'LKR'>('LKR');
+  const [editPriceVal, setEditPriceVal] = useState('');
+  const [editStockQuantity, setEditStockQuantity] = useState('25');
+  const [editWeightGrams, setEditWeightGrams] = useState('100');
+  const [editActive, setEditActive] = useState(true);
+  const [editImageUrl, setEditImageUrl] = useState('');
+  const [editProductImagePreview, setEditProductImagePreview] = useState<string | null>(null);
+  const [editSubmitting, setEditSubmitting] = useState(false);
+
   const [submitting, setSubmitting] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
 
   const addFileInputRef = useRef<HTMLInputElement>(null);
   const editFileInputRef = useRef<HTMLInputElement>(null);
+  const editProductFileInputRef = useRef<HTMLInputElement>(null);
+
+  const loadCategories = async () => {
+    try {
+      const cats = await api.getCategories();
+      if (cats && cats.length > 0) {
+        setAvailableCategories(cats);
+      }
+    } catch (err) {
+      console.warn('Could not load categories:', err);
+    }
+  };
 
   const loadSellerProducts = async () => {
     if (!user || user.role !== 'SELLER') return;
@@ -67,6 +104,7 @@ export const SellerDashboardPage: React.FC = () => {
 
   useEffect(() => {
     loadSellerProducts();
+    loadCategories();
   }, [user]);
 
   // Handle Image Selection for New Product Modal
@@ -97,6 +135,11 @@ export const SellerDashboardPage: React.FC = () => {
   const handleCreateProduct = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
+    const finalCategory = isCustomCategory ? customCategory.trim() : category.trim();
+    if (!finalCategory) {
+      setFeedback('Error: Product category is required.');
+      return;
+    }
     setSubmitting(true);
     setFeedback(null);
     try {
@@ -104,20 +147,22 @@ export const SellerDashboardPage: React.FC = () => {
         await api.createProductLkr({
           sellerId: user.id,
           name,
-          category,
+          category: finalCategory,
           description,
           priceLkr: parseFloat(priceVal),
           stockQuantity: parseInt(stockQuantity, 10),
+          weightGrams: parseInt(weightGrams, 10) || 100,
           imageUrl: imageUrl.trim() || undefined,
         });
       } else {
         await api.createProductUsd({
           sellerId: user.id,
           name,
-          category,
+          category: finalCategory,
           description,
           priceUsd: parseFloat(priceVal),
           stockQuantity: parseInt(stockQuantity, 10),
+          weightGrams: parseInt(weightGrams, 10) || 100,
           imageUrl: imageUrl.trim() || undefined,
         });
       }
@@ -129,12 +174,120 @@ export const SellerDashboardPage: React.FC = () => {
       setPriceVal('');
       setImageUrl('');
       setImagePreview(null);
+      setIsCustomCategory(false);
+      setCustomCategory('');
+      if (!availableCategories.some(c => c.toLowerCase() === finalCategory.toLowerCase())) {
+        setAvailableCategories(prev => [...prev, finalCategory]);
+      }
       loadSellerProducts();
+      loadCategories();
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Failed to create product';
       setFeedback(`Error: ${msg}`);
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  // Open Edit Product Modal
+  const handleOpenEditModal = (p: Product) => {
+    setEditingProduct(p);
+    setEditName(p.name);
+    const matchedCategory = availableCategories.find(c => c.toLowerCase() === p.category?.toLowerCase());
+    if (matchedCategory) {
+      setEditCategory(matchedCategory);
+      setIsEditCustomCategory(false);
+      setEditCustomCategory('');
+    } else {
+      setIsEditCustomCategory(true);
+      setEditCustomCategory(p.category || '');
+      setEditCategory('__NEW__');
+    }
+    setEditDescription(p.description || '');
+    setEditCurrencyMode('LKR');
+    setEditPriceVal(p.priceLkr ? p.priceLkr.toString() : (p.priceUsd * 300).toFixed(2));
+    setEditStockQuantity(p.stockQuantity.toString());
+    setEditWeightGrams((p.weightGrams || 100).toString());
+    setEditActive(p.active);
+    setEditImageUrl(p.imageUrl || '');
+    setEditProductImagePreview(p.imageUrl || null);
+  };
+
+  // Image change in edit modal
+  const handleEditProductImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        setFeedback('Error: Image file size must be under 5MB');
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const dataUrl = reader.result as string;
+        setEditProductImagePreview(dataUrl);
+        setEditImageUrl(dataUrl);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleClearEditProductImage = () => {
+    setEditProductImagePreview(null);
+    setEditImageUrl('');
+    if (editProductFileInputRef.current) editProductFileInputRef.current.value = '';
+  };
+
+  // Submit Edit Product
+  const handleUpdateProduct = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingProduct) return;
+    const finalCategory = isEditCustomCategory ? editCustomCategory.trim() : editCategory.trim();
+    if (!finalCategory) {
+      setFeedback('Error: Category is required.');
+      return;
+    }
+    setEditSubmitting(true);
+    setFeedback(null);
+    try {
+      const payload: {
+        name: string;
+        category: string;
+        description: string;
+        stockQuantity: number;
+        weightGrams: number;
+        active: boolean;
+        imageUrl?: string;
+        priceLkr?: number;
+        priceUsd?: number;
+      } = {
+        name: editName.trim(),
+        category: finalCategory,
+        description: editDescription.trim(),
+        stockQuantity: parseInt(editStockQuantity, 10),
+        weightGrams: parseInt(editWeightGrams, 10) || 100,
+        active: editActive,
+        imageUrl: editImageUrl.trim() || undefined,
+      };
+
+      if (editCurrencyMode === 'LKR') {
+        payload.priceLkr = parseFloat(editPriceVal);
+      } else {
+        payload.priceUsd = parseFloat(editPriceVal);
+      }
+
+      await api.updateProduct(editingProduct.id, payload);
+      setFeedback(`Product "${editName}" updated successfully!`);
+      setEditingProduct(null);
+      if (!availableCategories.some(c => c.toLowerCase() === finalCategory.toLowerCase())) {
+        setAvailableCategories(prev => [...prev, finalCategory]);
+      }
+      loadSellerProducts();
+      loadCategories();
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to update product';
+      setFeedback(`Error: ${msg}`);
+    } finally {
+      setEditSubmitting(false);
     }
   };
 
@@ -310,7 +463,7 @@ export const SellerDashboardPage: React.FC = () => {
                   <th className="py-3.5 px-5">Price (LKR)</th>
                   <th className="py-3.5 px-5">Stock</th>
                   <th className="py-3.5 px-5">Status</th>
-                  <th className="py-3.5 px-5 text-right">Image Actions</th>
+                  <th className="py-3.5 px-5 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#D6CBB5]/40 text-[#222B1F]">
@@ -358,19 +511,31 @@ export const SellerDashboardPage: React.FC = () => {
                       </span>
                     </td>
 
-                    {/* Image Upload Action */}
+                    {/* Actions */}
                     <td className="py-3 px-5 text-right">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setSelectedProductForImage(p);
-                          setEditImagePreview(p.imageUrl || null);
-                        }}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#E9E4D7] hover:bg-[#315D4F] text-[#222B1F] hover:text-[#F9F6EF] border border-[#D6CBB5] transition-all font-semibold text-xs"
-                      >
-                        <Camera className="w-3.5 h-3.5 text-[#A48B57]" />
-                        <span>{p.imageUrl ? 'Change Image' : 'Upload Image'}</span>
-                      </button>
+                      <div className="flex items-center justify-end gap-2">
+                        <button
+                          type="button"
+                          onClick={() => handleOpenEditModal(p)}
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#315D4F] hover:bg-[#19372E] text-[#F9F6EF] border border-[#A48B57]/50 transition-all font-semibold text-xs shadow-xs"
+                          title="Edit product details"
+                        >
+                          <Pencil className="w-3.5 h-3.5 text-[#BD9F75]" />
+                          <span>Edit</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSelectedProductForImage(p);
+                            setEditImagePreview(p.imageUrl || null);
+                          }}
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#E9E4D7] hover:bg-[#D6CBB5] text-[#222B1F] border border-[#D6CBB5] transition-all font-semibold text-xs"
+                          title="Upload or change image"
+                        >
+                          <Camera className="w-3.5 h-3.5 text-[#A48B57]" />
+                          <span>Photo</span>
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -501,18 +666,52 @@ export const SellerDashboardPage: React.FC = () => {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block font-semibold text-[#222B1F] mb-1">Category *</label>
-                  <select
-                    value={category}
-                    onChange={(e) => setCategory(e.target.value)}
-                    className="w-full px-3 py-2 bg-[#F9F6EF] text-[#222B1F] border border-[#D6CBB5] rounded-xl focus:outline-none focus:border-[#315D4F]"
-                  >
-                    <option value="Tea">Tea</option>
-                    <option value="Gems">Gems</option>
-                    <option value="Spices">Spices</option>
-                    <option value="Crafts">Crafts</option>
-                    <option value="Apparel">Apparel</option>
-                  </select>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="block font-semibold text-[#222B1F]">Category *</label>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsCustomCategory(!isCustomCategory);
+                        if (!isCustomCategory) {
+                          setCustomCategory('');
+                        }
+                      }}
+                      className="text-[10px] text-[#315D4F] hover:text-[#19372E] font-semibold underline"
+                    >
+                      {isCustomCategory ? 'Select existing' : '+ New Category'}
+                    </button>
+                  </div>
+                  {isCustomCategory ? (
+                    <input
+                      type="text"
+                      required
+                      value={customCategory}
+                      onChange={(e) => setCustomCategory(e.target.value)}
+                      placeholder="e.g. Ayurveda, Batik, Woodcraft..."
+                      className="w-full px-3 py-2 bg-[#F9F6EF] text-[#222B1F] border border-[#315D4F] rounded-xl focus:outline-none focus:ring-1 focus:ring-[#315D4F]"
+                      autoFocus
+                    />
+                  ) : (
+                    <select
+                      value={category}
+                      onChange={(e) => {
+                        if (e.target.value === '__NEW__') {
+                          setIsCustomCategory(true);
+                          setCustomCategory('');
+                        } else {
+                          setCategory(e.target.value);
+                        }
+                      }}
+                      className="w-full px-3 py-2 bg-[#F9F6EF] text-[#222B1F] border border-[#D6CBB5] rounded-xl focus:outline-none focus:border-[#315D4F]"
+                    >
+                      {availableCategories.map((cat) => (
+                        <option key={cat} value={cat}>
+                          {cat}
+                        </option>
+                      ))}
+                      <option value="__NEW__">+ Add New Category...</option>
+                    </select>
+                  )}
                 </div>
 
                 <div>
@@ -532,16 +731,30 @@ export const SellerDashboardPage: React.FC = () => {
                 </div>
               </div>
 
-              <div>
-                <label className="block font-semibold text-[#222B1F] mb-1">Initial Stock Quantity *</label>
-                <input
-                  type="number"
-                  min="1"
-                  required
-                  value={stockQuantity}
-                  onChange={(e) => setStockQuantity(e.target.value)}
-                  className="w-full px-3 py-2 bg-[#F9F6EF] text-[#222B1F] border border-[#D6CBB5] rounded-xl focus:outline-none focus:border-[#315D4F]"
-                />
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block font-semibold text-[#222B1F] mb-1">Initial Stock Quantity *</label>
+                  <input
+                    type="number"
+                    min="1"
+                    required
+                    value={stockQuantity}
+                    onChange={(e) => setStockQuantity(e.target.value)}
+                    className="w-full px-3 py-2 bg-[#F9F6EF] text-[#222B1F] border border-[#D6CBB5] rounded-xl focus:outline-none focus:border-[#315D4F]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block font-semibold text-[#222B1F] mb-1">Weight (Grams)</label>
+                  <input
+                    type="number"
+                    min="1"
+                    value={weightGrams}
+                    onChange={(e) => setWeightGrams(e.target.value)}
+                    placeholder="100"
+                    className="w-full px-3 py-2 bg-[#F9F6EF] text-[#222B1F] border border-[#D6CBB5] rounded-xl focus:outline-none focus:border-[#315D4F]"
+                  />
+                </div>
               </div>
 
               <div>
@@ -677,6 +890,293 @@ export const SellerDashboardPage: React.FC = () => {
                 {uploadingImage ? 'Saving...' : 'Save to Database'}
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Existing Product Modal */}
+      {editingProduct && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-[#FFFFFF] rounded-3xl max-w-lg w-full p-6 sm:p-8 space-y-6 shadow-2xl border border-[#D6CBB5] max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between pb-3 border-b border-[#D6CBB5]/60">
+              <div className="flex items-center gap-2">
+                <Pencil className="w-5 h-5 text-[#A48B57]" />
+                <div>
+                  <h3 className="font-serif text-xl font-bold text-[#222B1F]">Edit Ceylon Artifact</h3>
+                  <p className="text-[11px] text-[#7A755D]">Item ID: #{editingProduct.id}</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setEditingProduct(null)}
+                className="p-1 rounded-lg text-[#ADA78A] hover:text-[#222B1F] transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleUpdateProduct} className="space-y-4 text-xs">
+              
+              {/* Product Image Section */}
+              <div className="space-y-2">
+                <label className="block font-semibold text-[#222B1F]">Product Image</label>
+                
+                <input
+                  ref={editProductFileInputRef}
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp"
+                  onChange={handleEditProductImageChange}
+                  className="hidden"
+                  id="edit-product-details-image-file"
+                />
+
+                {editProductImagePreview ? (
+                  <div className="relative aspect-video w-full rounded-2xl overflow-hidden border border-[#D6CBB5] bg-[#E9E4D7]">
+                    <img
+                      src={editProductImagePreview}
+                      alt="Product preview"
+                      className="w-full h-full object-cover"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleClearEditProductImage}
+                      className="absolute top-2 right-2 p-1.5 rounded-full bg-black/70 text-white hover:bg-black transition-colors"
+                      title="Remove image"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => editProductFileInputRef.current?.click()}
+                      className="absolute bottom-2 left-2 bg-[#315D4F] hover:bg-[#19372E] text-[#F9F6EF] px-3 py-1 rounded-full text-[10px] font-bold flex items-center gap-1 shadow-sm transition-all"
+                    >
+                      <Camera className="w-3 h-3 text-[#BD9F75]" />
+                      Change Photo
+                    </button>
+                  </div>
+                ) : (
+                  <div
+                    onClick={() => editProductFileInputRef.current?.click()}
+                    className="border-2 border-dashed border-[#D6CBB5] hover:border-[#315D4F] hover:bg-[#E9E4D7]/30 transition-all rounded-2xl p-5 text-center cursor-pointer space-y-2"
+                  >
+                    <div className="w-10 h-10 rounded-full bg-[#E9E4D7] flex items-center justify-center mx-auto text-[#315D4F]">
+                      <Upload className="w-5 h-5 text-[#A48B57]" />
+                    </div>
+                    <div>
+                      <p className="font-semibold text-[#222B1F] text-xs">Click to upload product image</p>
+                      <p className="text-[10px] text-[#7A755D] mt-0.5">JPG, PNG, or WebP up to 5MB</p>
+                    </div>
+                  </div>
+                )}
+
+                <div className="pt-1">
+                  <input
+                    type="text"
+                    placeholder="Or paste external image URL..."
+                    value={editImageUrl?.startsWith('data:') ? '' : editImageUrl || ''}
+                    onChange={(e) => {
+                      setEditImageUrl(e.target.value);
+                      setEditProductImagePreview(e.target.value || null);
+                    }}
+                    className="w-full px-3 py-2 bg-[#F9F6EF] text-[#222B1F] border border-[#D6CBB5] rounded-xl focus:outline-none focus:border-[#315D4F] text-xs"
+                  />
+                </div>
+              </div>
+
+              {/* Product Title */}
+              <div>
+                <label className="block font-semibold text-[#222B1F] mb-1">Product Title *</label>
+                <input
+                  type="text"
+                  required
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                  placeholder="e.g. Ceylon Silver Tips White Tea"
+                  className="w-full px-3 py-2 bg-[#F9F6EF] text-[#222B1F] border border-[#D6CBB5] rounded-xl focus:outline-none focus:border-[#315D4F]"
+                />
+              </div>
+
+              {/* Category */}
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block font-semibold text-[#222B1F]">Category *</label>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsEditCustomCategory(!isEditCustomCategory);
+                      if (!isEditCustomCategory) {
+                        setEditCustomCategory('');
+                      }
+                    }}
+                    className="text-[10px] text-[#315D4F] hover:text-[#19372E] font-semibold underline"
+                  >
+                    {isEditCustomCategory ? 'Select existing' : '+ New Category'}
+                  </button>
+                </div>
+                {isEditCustomCategory ? (
+                  <input
+                    type="text"
+                    required
+                    value={editCustomCategory}
+                    onChange={(e) => setEditCustomCategory(e.target.value)}
+                    placeholder="e.g. Ayurveda, Batik, Woodcraft..."
+                    className="w-full px-3 py-2 bg-[#F9F6EF] text-[#222B1F] border border-[#315D4F] rounded-xl focus:outline-none focus:ring-1 focus:ring-[#315D4F]"
+                    autoFocus
+                  />
+                ) : (
+                  <select
+                    value={editCategory}
+                    onChange={(e) => {
+                      if (e.target.value === '__NEW__') {
+                        setIsEditCustomCategory(true);
+                        setEditCustomCategory('');
+                      } else {
+                        setEditCategory(e.target.value);
+                      }
+                    }}
+                    className="w-full px-3 py-2 bg-[#F9F6EF] text-[#222B1F] border border-[#D6CBB5] rounded-xl focus:outline-none focus:border-[#315D4F]"
+                  >
+                    {availableCategories.map((cat) => (
+                      <option key={cat} value={cat}>
+                        {cat}
+                      </option>
+                    ))}
+                    <option value="__NEW__">+ Add New Category...</option>
+                  </select>
+                )}
+              </div>
+
+              {/* Currency selection & Price */}
+              <div>
+                <label className="block font-semibold text-[#222B1F] mb-1">Pricing Currency</label>
+                <div className="grid grid-cols-2 gap-2 p-1 bg-[#E9E4D7] rounded-xl border border-[#D6CBB5] mb-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (editCurrencyMode !== 'LKR') {
+                        setEditCurrencyMode('LKR');
+                        if (editPriceVal) {
+                          setEditPriceVal((parseFloat(editPriceVal) * 300).toFixed(2));
+                        }
+                      }
+                    }}
+                    className={`py-1.5 rounded-lg font-bold transition-all ${
+                      editCurrencyMode === 'LKR' ? 'bg-[#315D4F] text-[#F9F6EF] shadow-xs' : 'text-[#7A755D]'
+                    }`}
+                  >
+                    Sri Lankan Rupee (LKR)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (editCurrencyMode !== 'USD') {
+                        setEditCurrencyMode('USD');
+                        if (editPriceVal) {
+                          setEditPriceVal((parseFloat(editPriceVal) / 300).toFixed(2));
+                        }
+                      }
+                    }}
+                    className={`py-1.5 rounded-lg font-bold transition-all ${
+                      editCurrencyMode === 'USD' ? 'bg-[#315D4F] text-[#F9F6EF] shadow-xs' : 'text-[#7A755D]'
+                    }`}
+                  >
+                    US Dollar (USD)
+                  </button>
+                </div>
+
+                <label className="block font-semibold text-[#222B1F] mb-1">
+                  Price in {editCurrencyMode} *
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0.1"
+                  required
+                  value={editPriceVal}
+                  onChange={(e) => setEditPriceVal(e.target.value)}
+                  placeholder={editCurrencyMode === 'LKR' ? '7500.00' : '25.00'}
+                  className="w-full px-3 py-2 bg-[#F9F6EF] text-[#222B1F] border border-[#D6CBB5] rounded-xl focus:outline-none focus:border-[#315D4F]"
+                />
+              </div>
+
+              {/* Stock and Weight */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block font-semibold text-[#222B1F] mb-1">Stock Quantity *</label>
+                  <input
+                    type="number"
+                    min="0"
+                    required
+                    value={editStockQuantity}
+                    onChange={(e) => setEditStockQuantity(e.target.value)}
+                    className="w-full px-3 py-2 bg-[#F9F6EF] text-[#222B1F] border border-[#D6CBB5] rounded-xl focus:outline-none focus:border-[#315D4F]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block font-semibold text-[#222B1F] mb-1">Weight (Grams)</label>
+                  <input
+                    type="number"
+                    min="1"
+                    value={editWeightGrams}
+                    onChange={(e) => setEditWeightGrams(e.target.value)}
+                    className="w-full px-3 py-2 bg-[#F9F6EF] text-[#222B1F] border border-[#D6CBB5] rounded-xl focus:outline-none focus:border-[#315D4F]"
+                  />
+                </div>
+              </div>
+
+              {/* Listing Status Toggle */}
+              <div className="p-3 bg-[#E9E4D7]/50 rounded-xl border border-[#D6CBB5] flex items-center justify-between">
+                <div>
+                  <span className="font-semibold text-[#222B1F] block text-xs">Catalog Listing Status</span>
+                  <span className="text-[11px] text-[#7A755D]">
+                    {editActive ? 'Product is visible in the public catalog' : 'Product is hidden from buyers'}
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setEditActive(!editActive)}
+                  className={`px-3 py-1.5 rounded-xl font-bold text-xs transition-all ${
+                    editActive
+                      ? 'bg-[#315D4F] text-[#F9F6EF] shadow-xs'
+                      : 'bg-[#ADA78A] text-[#222B1F]'
+                  }`}
+                >
+                  {editActive ? 'ACTIVE' : 'INACTIVE'}
+                </button>
+              </div>
+
+              {/* Description */}
+              <div>
+                <label className="block font-semibold text-[#222B1F] mb-1">Product Description *</label>
+                <textarea
+                  rows={3}
+                  required
+                  value={editDescription}
+                  onChange={(e) => setEditDescription(e.target.value)}
+                  placeholder="Describe regional origin, harvest estate, grade or master craftsmanship..."
+                  className="w-full px-3 py-2 bg-[#F9F6EF] text-[#222B1F] border border-[#D6CBB5] rounded-xl focus:outline-none focus:border-[#315D4F]"
+                />
+              </div>
+
+              <div className="pt-3 flex justify-end gap-3 border-t border-[#D6CBB5]/60">
+                <button
+                  type="button"
+                  onClick={() => setEditingProduct(null)}
+                  className="px-4 py-2.5 rounded-xl bg-[#E9E4D7] hover:bg-[#D6CBB5] text-[#222B1F] font-semibold"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={editSubmitting}
+                  className="px-5 py-2.5 rounded-xl bg-[#315D4F] hover:bg-[#19372E] text-[#F9F6EF] font-bold uppercase tracking-wider border border-[#A48B57]/50 shadow-heritage disabled:opacity-50"
+                >
+                  {editSubmitting ? 'Saving Changes...' : 'Save Product Changes'}
+                </button>
+              </div>
+
+            </form>
           </div>
         </div>
       )}
