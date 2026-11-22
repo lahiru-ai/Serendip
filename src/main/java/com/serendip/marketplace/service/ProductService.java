@@ -106,7 +106,7 @@ public class ProductService {
     public List<String> getAllCategories() {
         List<String> dbCategories = productRepository.findDistinctCategories();
         Set<String> categories = new LinkedHashSet<>(
-                List.of("Tea", "Gems", "Spices", "Crafts", "Apparel")
+                List.of("Tea", "Gems", "Spices", "Crafts", "Apparel", "Ayurvedic Products")
         );
         if (dbCategories != null) {
             for (String cat : dbCategories) {

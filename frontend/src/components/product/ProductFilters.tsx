@@ -93,7 +93,10 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
             All
           </button>
           {categories.map((cat) => {
-            const isSelected = filters.category.toLowerCase() === cat.toLowerCase();
+            const catLower = cat.toLowerCase().trim();
+            const filterLower = filters.category.toLowerCase().trim();
+            const isSelected = filterLower === catLower ||
+              ((filterLower.includes('ayurved') || filterLower === 'wellness') && (catLower.includes('ayurved') || catLower === 'wellness'));
             return (
               <button
                 key={cat}

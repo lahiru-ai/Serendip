@@ -102,70 +102,94 @@ public class DataInitializer implements CommandLineRunner {
 
     /** Seeds sample products if catalog is currently empty. */
     private void seedSampleProducts(Seller seller) {
-        if (seller == null || productRepository.count() > 0) {
+        if (seller == null) {
             return;
         }
 
-        Product[] sampleProducts = new Product[] {
-                Product.createInLkr(
-                        "Ceylon Silver Tips White Tea",
-                        "Tea",
-                        "Handpicked virgin white tea buds from high-elevation Nuwara Eliya estates, offering delicate floral notes.",
-                        new BigDecimal("7500.00"),
-                        45,
-                        seller,
-                        100
-                ),
-                Product.createInLkr(
-                        "Ratnapura Royal Blue Sapphire (2.1ct)",
-                        "Gems",
-                        "Certified unheated natural Ceylon blue sapphire with vivid cornflower hue and precision cushion cut.",
-                        new BigDecimal("285000.00"),
-                        3,
-                        seller,
-                        15
-                ),
-                Product.createInLkr(
-                        "Organic Ceylon True Cinnamon Quills (Alba Grade)",
-                        "Spices",
-                        "Pure Cinnamomum verum quills harvested from southern Sri Lankan coastal plantations, rich in cinnamaldehyde.",
-                        new BigDecimal("3600.00"),
-                        80,
-                        seller,
-                        250
-                ),
-                Product.createInLkr(
-                        "Hand-Carved Traditional Peacock Mask (Mayura Raksha)",
-                        "Crafts",
-                        "Intricately hand-carved Kaduru wood mask painted with natural pigments to bring peace and harmony.",
-                        new BigDecimal("12500.00"),
-                        12,
-                        seller,
-                        600
-                ),
-                Product.createInLkr(
-                        "Handloom Pure Cotton Batik Sarong",
-                        "Apparel",
-                        "Traditional hand-dyed wax batik sarong made from 100% breathable Ceylon cotton in deep indigo motifs.",
-                        new BigDecimal("6200.00"),
-                        30,
-                        seller,
-                        350
-                ),
-                Product.createInLkr(
-                        "Single-Estate Ruhuna BOPF Black Tea",
-                        "Tea",
-                        "Robust, full-bodied low-grown Ceylon black tea with rich caramel sweetness, perfect for morning milk brew.",
-                        new BigDecimal("2400.00"),
-                        100,
-                        seller,
-                        500
-                )
-        };
+        if (productRepository.count() == 0) {
+            Product[] sampleProducts = new Product[] {
+                    Product.createInLkr(
+                            "Ceylon Silver Tips White Tea",
+                            "Tea",
+                            "Handpicked virgin white tea buds from high-elevation Nuwara Eliya estates, offering delicate floral notes.",
+                            new BigDecimal("7500.00"),
+                            45,
+                            seller,
+                            100
+                    ),
+                    Product.createInLkr(
+                            "Ratnapura Royal Blue Sapphire (2.1ct)",
+                            "Gems",
+                            "Certified unheated natural Ceylon blue sapphire with vivid cornflower hue and precision cushion cut.",
+                            new BigDecimal("285000.00"),
+                            3,
+                            seller,
+                            15
+                    ),
+                    Product.createInLkr(
+                            "Organic Ceylon True Cinnamon Quills (Alba Grade)",
+                            "Spices",
+                            "Pure Cinnamomum verum quills harvested from southern Sri Lankan coastal plantations, rich in cinnamaldehyde.",
+                            new BigDecimal("3600.00"),
+                            80,
+                            seller,
+                            250
+                    ),
+                    Product.createInLkr(
+                            "Hand-Carved Traditional Peacock Mask (Mayura Raksha)",
+                            "Crafts",
+                            "Intricately hand-carved Kaduru wood mask painted with natural pigments to bring peace and harmony.",
+                            new BigDecimal("12500.00"),
+                            12,
+                            seller,
+                            600
+                    ),
+                    Product.createInLkr(
+                            "Handloom Pure Cotton Batik Sarong",
+                            "Apparel",
+                            "Traditional hand-dyed wax batik sarong made from 100% breathable Ceylon cotton in deep indigo motifs.",
+                            new BigDecimal("6200.00"),
+                            30,
+                            seller,
+                            350
+                    ),
+                    Product.createInLkr(
+                            "Single-Estate Ruhuna BOPF Black Tea",
+                            "Tea",
+                            "Robust, full-bodied low-grown Ceylon black tea with rich caramel sweetness, perfect for morning milk brew.",
+                            new BigDecimal("2400.00"),
+                            100,
+                            seller,
+                            500
+                    ),
+                    Product.createInLkr(
+                            "Authentic Ceylon Herbal Ayurvedic Samahan Elixir",
+                            "Ayurvedic Products",
+                            "Traditional 14-herb Sri Lankan Ayurvedic wellness tonic formulated for immunity, vitality, and natural rejuvenation.",
+                            new BigDecimal("2100.00"),
+                            75,
+                            seller,
+                            150
+                    )
+            };
 
-        for (Product product : sampleProducts) {
-            productRepository.save(product);
+            for (Product product : sampleProducts) {
+                productRepository.save(product);
+            }
+            log.info("Initialized {} sample catalog products for merchant {}", sampleProducts.length, seller.getShopName());
+        } else if (productRepository.findByCategory("Ayurvedic Products").isEmpty() && productRepository.findByCategory("Ayurveda").isEmpty()) {
+            Product ayurvedicProduct = Product.createInLkr(
+                    "Authentic Ceylon Herbal Ayurvedic Samahan Elixir",
+                    "Ayurvedic Products",
+                    "Traditional 14-herb Sri Lankan Ayurvedic wellness tonic formulated for immunity, vitality, and natural rejuvenation.",
+                    new BigDecimal("2100.00"),
+                    75,
+                    seller,
+                    150
+            );
+            ayurvedicProduct.setImageUrl("https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?auto=format&fit=crop&w=700&q=80");
+            productRepository.save(ayurvedicProduct);
+            log.info("Initialized sample Ayurvedic product for merchant {}", seller.getShopName());
         }
-        log.info("Initialized {} sample catalog products for merchant {}", sampleProducts.length, seller.getShopName());
     }
 }

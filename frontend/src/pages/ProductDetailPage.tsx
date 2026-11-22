@@ -26,12 +26,17 @@ const CATEGORY_IMAGES: Record<string, string> = {
   Spices: 'https://images.unsplash.com/photo-1509358271058-acd22cc93898?auto=format&fit=crop&w=1200&q=80',
   Crafts: 'https://images.unsplash.com/photo-1606744837616-56c9a5c6a6eb?auto=format&fit=crop&w=1200&q=80',
   Apparel: 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?auto=format&fit=crop&w=1200&q=80',
+  'Ayurvedic Products': 'https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?auto=format&fit=crop&w=1200&q=80',
+  Ayurveda: 'https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?auto=format&fit=crop&w=1200&q=80',
   default: 'https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=1200&q=80'
 };
 
 const getItemImage = (product: Product): string => {
   if (product.imageUrl) return product.imageUrl;
   const name = product.name.toLowerCase();
+  if (name.includes('ayurved') || name.includes('samahan') || name.includes('elixir') || name.includes('wellness') || name.includes('herbal')) {
+    return 'https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?auto=format&fit=crop&w=1200&q=80';
+  }
   if (name.includes('white tea') || name.includes('silver tip')) {
     return 'https://images.unsplash.com/photo-1597481499750-3e6b22637e12?auto=format&fit=crop&w=1200&q=80';
   }

@@ -5,7 +5,7 @@ import { api } from '../services/api';
 import { ProductGrid } from '../components/product/ProductGrid';
 import { ProductFilters, FilterState } from '../components/product/ProductFilters';
 
-const AVAILABLE_CATEGORIES = ['Tea', 'Gems', 'Spices', 'Crafts', 'Apparel'];
+const AVAILABLE_CATEGORIES = ['Tea', 'Gems', 'Spices', 'Crafts', 'Apparel', 'Ayurvedic Products'];
 
 /**
  * SERENDIP Catalog Page
@@ -81,9 +81,15 @@ export const CatalogPage: React.FC = () => {
   const filteredProducts = useMemo(() => {
     return allProducts
       .filter((product) => {
-        // Category filter
-        if (filters.category && product.category.toLowerCase() !== filters.category.toLowerCase()) {
-          return false;
+        // Category filter (flexible match for Ayurveda/Ayurvedic Products)
+        if (filters.category) {
+          const filterCat = filters.category.toLowerCase().trim();
+          const prodCat = (product.category || '').toLowerCase().trim();
+          const isAyurvedaFilter = filterCat.includes('ayurved') || filterCat === 'wellness';
+          const isAyurvedaProd = prodCat.includes('ayurved') || prodCat.includes('wellness') || prodCat.includes('herbal');
+          if (prodCat !== filterCat && !(isAyurvedaFilter && isAyurvedaProd)) {
+            return false;
+          }
         }
 
         // Search filter (name, description, seller name, category)

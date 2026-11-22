@@ -36,7 +36,7 @@ const CATEGORIES = [
   {
     id: 'wellness',
     title: 'Health & Wellness',
-    categoryQuery: 'Spices',
+    categoryQuery: 'Ayurvedic Products',
     description: 'Ancient Ayurvedic herbal tonics, virgin coconut oil & herbal elixirs',
     image: 'https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?auto=format&fit=crop&w=800&q=80',
     tag: '100% Natural'
@@ -137,7 +137,13 @@ export const HomePage: React.FC = () => {
     if (selectedCategoryTab === 'ALL') {
       return products.slice(0, 8);
     }
-    return products.filter((p) => p.category.toLowerCase() === selectedCategoryTab.toLowerCase()).slice(0, 8);
+    const tabLower = selectedCategoryTab.toLowerCase().trim();
+    return products.filter((p) => {
+      const prodCat = (p.category || '').toLowerCase().trim();
+      const isAyurvedaTab = tabLower.includes('ayurved') || tabLower === 'wellness';
+      const isAyurvedaProd = prodCat.includes('ayurved') || prodCat.includes('wellness') || prodCat.includes('herbal');
+      return prodCat === tabLower || (isAyurvedaTab && isAyurvedaProd);
+    }).slice(0, 8);
   }, [products, selectedCategoryTab]);
 
   return (
@@ -419,7 +425,7 @@ export const HomePage: React.FC = () => {
 
           {/* Category Filter Chips */}
           <div className="flex flex-wrap items-center gap-2 mt-4 md:mt-0">
-            {['ALL', 'Tea', 'Spices', 'Gems', 'Crafts', 'Apparel'].map((tab) => (
+            {['ALL', 'Tea', 'Spices', 'Gems', 'Crafts', 'Apparel', 'Ayurvedic Products'].map((tab) => (
               <button
                 key={tab}
                 type="button"

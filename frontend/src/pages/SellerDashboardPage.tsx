@@ -31,7 +31,7 @@ export const SellerDashboardPage: React.FC = () => {
 
   // Categories state
   const [availableCategories, setAvailableCategories] = useState<string[]>([
-    'Tea', 'Gems', 'Spices', 'Crafts', 'Apparel'
+    'Tea', 'Gems', 'Spices', 'Crafts', 'Apparel', 'Ayurvedic Products'
   ]);
   const [isCustomCategory, setIsCustomCategory] = useState(false);
   const [customCategory, setCustomCategory] = useState('');
